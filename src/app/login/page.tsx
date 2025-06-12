@@ -9,7 +9,7 @@ export default function LoginPage() {
     <div>
        <form action="">
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 flex items-center justify-center">
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8 shadow-lg w-full max-w-md">
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8 shadow-lg w-full max-w-md sm:max-w-lg md:max-w-xl">
             <h1 className="text-2xl font-bold text-center text-gray-200 mb-6">Login to StudyBuddy</h1>
             <div className="space-y-4">
               <input
