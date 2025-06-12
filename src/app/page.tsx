@@ -1,6 +1,15 @@
- 
+'use client'
+import {useRouter} from "next/navigation";
+
 
 export default function Home() {
+
+  const router=useRouter();
+  const handleButtonClick = () => {
+    router.replace('/login');
+  };
+
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900">
       {/* Logo */}
@@ -37,7 +46,7 @@ export default function Home() {
 
           {/* CTA Button */}
           <div className="flex justify-center pt-8">
-            <button className="group relative bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500 text-white font-bold py-4 px-8 sm:py-5 sm:px-12 md:py-6 md:px-16 rounded-full shadow-2xl hover:shadow-blue-400/25 transition-all duration-300 ease-in-out transform hover:scale-105 hover:-translate-y-1 border border-white/20">
+            <button  onClick={handleButtonClick}   className="group relative bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500 text-white font-bold py-4 px-8 sm:py-5 sm:px-12 md:py-6 md:px-16 rounded-full shadow-2xl hover:shadow-blue-400/25 transition-all duration-300 ease-in-out transform hover:scale-105 hover:-translate-y-1 border border-white/20">
               <span className="relative z-10 text-lg sm:text-xl md:text-2xl">
                 Start Learning
               </span>
