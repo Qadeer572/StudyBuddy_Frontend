@@ -1,11 +1,9 @@
 'use client'
- import { useRouter } from "next/navigation"
+import { useRouter } from 'next/navigation';
 
-export default function signupPage() {
+export default function SignupPage() {
 
     const router = useRouter();
-
-    
 
     return(
         <div>

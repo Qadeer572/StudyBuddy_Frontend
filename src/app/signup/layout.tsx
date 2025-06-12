@@ -1,11 +1,11 @@
-
+// src/app/signup/layout.tsx
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'signup - StudyBuddy',
+  title: 'Sign Up - StudyBuddy',
 };
 
-export default function signupLayout({ children }: { children: React.ReactNode }) {
+export default function SignupLayout({ children }: { children: React.ReactNode }) {
   return (
     <main>
       {children}
