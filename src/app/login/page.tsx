@@ -32,7 +32,7 @@ export default function LoginPage() {
               Login
             </button>
             <p className="mt-4 text-center text-gray-400">Dont have an account?{' '}<span
-                onClick={() => router.push('/register')}
+                onClick={() => router.push('/signup')}
                 className="text-blue-400 cursor-pointer hover:underline"
               >
                 Register here
