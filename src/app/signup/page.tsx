@@ -12,10 +12,11 @@ export default function SignupPage() {
 
   const router = useRouter();
 
-  const signupHandler = async () => {
-     
+  const signupHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+     e.preventDefault();
 
-    const apiRout = 'http://127.0.0.1:8000/signup/';
+    //const apiRout = 'http://127.0.0.1:8000/signup/';
+    const apiRout = 'https://studybuddys-454c3f01f785.herokuapp.com/signup/';
 
     const res = await fetch(apiRout, {
       method: 'POST',
@@ -27,10 +28,11 @@ export default function SignupPage() {
 
     const data = await res.json();
     if (res.ok) {
+      router.push('/login');
       setMessage(data.message);
       setMessageType('success');
     } else {
-      setMessage(data.message || "Something went wrong");
+      setMessage(data.error);
       setMessageType('error');
     }
 
@@ -51,7 +53,7 @@ export default function SignupPage() {
           </div>
         )}
 
-        <form onSubmit={signupHandler}>
+        <form onSubmit={ (e) => signupHandler(e)}>
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8 shadow-lg">
             <h1 className="text-2xl font-bold text-center text-gray-200 mb-6">Registration</h1>
 
