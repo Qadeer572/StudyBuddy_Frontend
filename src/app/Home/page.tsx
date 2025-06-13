@@ -1,38 +1,32 @@
-'use client'
-import React from "react";
-import { useRouter } from "next/navigation";
+'use client';
+import { useRouter } from 'next/navigation';
 
-export default function StudyBuddyHomePage() {
+export default function HomePage() {
   const router = useRouter();
 
-  const handleLogin = () => {
-    // Redirect to login page
-    router.push("/login");
-  };
+  const handleClick = () => router.push('/planner');
 
-  const handleSignup = () => {
-    // Redirect to signup page
-    router.push("/signup");
-  };
+  const Card = ({ title, desc, emoji }: { title: string, desc: string, emoji: string }) => (
+    <div
+      onClick={handleClick}
+      className="cursor-pointer rounded-2xl p-4 w-40 sm:w-48 md:w-56 aspect-square bg-white/10 backdrop-blur-md shadow-md hover:shadow-blue-400 hover:scale-105 transition-transform duration-300 text-gray-200"
+    >
+      <div className="flex flex-col h-full justify-between">
+        <h2 className="text-lg font-semibold">{emoji} {title}</h2>
+        <p className="text-sm text-gray-300">{desc}</p>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 flex items-center justify-center">
-      <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8 shadow-lg sm:max-w-sm md:max-w-sm">
-        <h1 className="text-2xl font-bold text-center text-gray-200 mb-6">Welcome to StudyBuddy</h1>
-        <div className="space-y-4">
-          <button
-            onClick={handleLogin}
-            className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-blue-400/25 transition-all duration-300 ease-in-out transform hover:scale-105 hover:-translate-y-1"
-          >
-            Login
-          </button>
-          <button
-            onClick={handleSignup}
-            className="w-full bg-gradient-to-r from-green-500 to-yellow-600 hover:from-green-400 hover:to-yellow-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-green-400/25 transition-all duration-300 ease-in-out transform hover:scale-105 hover:-translate-y-1"
-          >
-            Sign Up
-          </button>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 py-12 px-4 justify-center">
+      <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-3 gap-6 justify-items-center">
+        <Card title="Study Planner" desc="Plan your daily or weekly study schedule." emoji="📅" />
+        <Card title="Flashcards" desc="Memorize key concepts quickly." emoji="🧠" />
+        <Card title="Group Study" desc="Collaborate with your study group." emoji="👥" />
+        <Card title="Analytics" desc="Track your progress over time." emoji="📊" />
+        <Card title="Pomodoro Timer" desc="Boost focus with timed sessions." emoji="⏱️" />
+        <Card title="Notes" desc="Organize your study materials." emoji="📝" />
       </div>
     </div>
   );
