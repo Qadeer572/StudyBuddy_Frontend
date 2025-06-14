@@ -14,6 +14,15 @@ export default function StudyPlanner() {
         { title: 'Physics', deadline: '2023-11-05', status: 'Pending', reminder: 'Yes' },
         { title: 'LA', deadline: '2023-10-30', status: 'Pending', reminder: 'Yes' },
         { title: 'Maths', deadline: '2023-11-01', status: 'Completed', reminder: 'Yes' },
+        { title: 'Physics', deadline: '2023-11-05', status: 'Pending', reminder: 'Yes' },
+        { title: 'LA', deadline: '2023-10-30', status: 'Pending', reminder: 'Yes' },
+        { title: 'Maths', deadline: '2023-11-01', status: 'Completed', reminder: 'Yes' },
+        { title: 'Physics', deadline: '2023-11-05', status: 'Pending', reminder: 'Yes' },
+        { title: 'LA', deadline: '2023-10-30', status: 'Pending', reminder: 'Yes' },
+        { title: 'Maths', deadline: '2023-11-01', status: 'Completed', reminder: 'Yes' },
+        { title: 'Physics', deadline: '2023-11-05', status: 'Pending', reminder: 'Yes' },
+        { title: 'LA', deadline: '2023-10-30', status: 'Pending', reminder: 'Yes' },
+        { title: 'Maths', deadline: '2023-11-01', status: 'Completed', reminder: 'Yes' },
         { title: 'Physics', deadline: '2023-11-05', status: 'Pending', reminder: 'Yes' }
     ];
     const subject = [
@@ -55,19 +64,19 @@ export default function StudyPlanner() {
                 </h1>
                 <div className="flex flex-col sm:flex-row justify-center items-center space-x-0 sm:space-x-2 md:space-x-4 mt-2 mb-2">
                     <button 
-                        className="w-full max-w-[10rem] h-[2.5rem] bg-amber-600 rounded-md text-sm sm:text-base md:w-[10rem] md:h-[3rem]" 
+                        className="w-full max-w-[10rem] h-[2.5rem] mt-0  bg-amber-600 rounded-md text-sm sm:text-base md:w-[10rem] md:h-[3rem]" 
                         onClick={() => setActiveForm('form1')}
                     >
                         Add Subject
                     </button>
                     <button 
-                        className="w-full max-w-[10rem] h-[2.5rem] bg-amber-600 rounded-md text-sm sm:text-base md:w-[10rem] md:h-[3rem]" 
+                        className="w-full max-w-[10rem] h-[2.5rem] mt-2 bg-amber-600 rounded-md text-sm sm:text-base md:w-[10rem] md:h-[3rem]" 
                         onClick={() => setActiveForm('form2')}
                     >
                         Add Topic
                     </button>
                 </div>
-                <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 rounded-md mx-auto w-full max-w-[20rem] sm:max-w-[24rem] md:w-sm">
+                <div className="bg-gradient-to-br mb-1 from-slate-900 via-slate-800 to-blue-900 rounded-md mx-auto w-full max-w-[20rem] sm:max-w-[24rem] md:w-sm">
                     {activeForm === 'form1' && (
                         <form>
                             <div className="flex flex-col p-1.5 items-center justify-center h-[18rem] sm:h-[20rem] space-y-4">
