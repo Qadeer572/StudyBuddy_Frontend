@@ -15,18 +15,18 @@ export default function StudyPlanner() {
 return(
 
 <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 flex flex-col sm:flex-col md:flex-row items-center justify-end px-4 max-w-full">
-<div className="min-h-96 w-full sm:w-3/4 ml-3 lg:w-1/2 mt-1 md:h-[35rem] max-w-4xl bg-yellow-100 flex flex-col rounded-md shadow-lg">
+<div className="min-h-96 w-full   ml-3 lg:w-1/2 mt-1 md: h-[35rem] max-w-4xl bg-yellow-100 flex flex-col rounded-md shadow-lg">
     <h1 className="text-4xl font-bold text-center text-gray-800 p-8 font-cursive">
       StudyPlanner
     </h1>
     <div className="flex justify-center items-center space-x-4 mt-2 mb-2">
-        <button className="md:w-[10rem] h-[3rem] bg-amber-600 rounded-md " onClick={() =>setActiveForm('form1')} >Add Subject</button>
-        <button className="md:w-[10rem] h-[3rem] bg-amber-600 rounded-md" onClick={() =>setActiveForm('form2')}>Add Topic</button>
+        <button className="w-[10rem] h-[3rem] bg-amber-600 rounded-md " onClick={() =>setActiveForm('form1')} >Add Subject</button>
+        <button className="w-[10rem] h-[3rem] bg-amber-600 rounded-md" onClick={() =>setActiveForm('form2')}>Add Topic</button>
     </div>
     <div className=" bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 rounded-md mx-auto sm: w-sm md:w-sm ">
     {activeForm === 'form1' && (
         <form action="">
-            <div className="flex flex-col p-1.5 items-center justify-center  sm:h-[20rem] md:h-[20rem] space-y-4">
+            <div className="flex flex-col p-1.5 items-center justify-center  h-[20rem] space-y-4">
                 <input
                  placeholder=" Subject Name" 
                  className="bg-blue-300 text-black md: w-[18rem] h-[3rem] rounded-md"
@@ -45,7 +45,7 @@ return(
     )}
     {activeForm === 'form2' && (
          <form action="">
-         <div className="flex flex-col p-1.5 items-center justify-center  sm:h-[20rem] md:h-[20rem] space-y-4">
+         <div className="flex flex-col p-1.5 items-center justify-center   h-[20rem] space-y-4">
              <input
               placeholder=" Title" 
               className="bg-blue-300 text-black md: w-[18rem] h-[3rem] rounded-md"
