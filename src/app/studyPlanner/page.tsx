@@ -3,7 +3,7 @@ import React from "react";
 import { useState } from "react";
 
 export default function StudyPlanner() {
-    const [activeForm, setActiveForm] = useState<'form1' | 'form2' | null>(null);
+    const [activeForm, setActiveForm] = useState<'form1' | 'form2' | null>('form1');
 
     const topics = [
         { title: 'LA', deadline: '2023-10-30', status: 'Pending', reminder: 'Yes' },
