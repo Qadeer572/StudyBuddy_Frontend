@@ -26,13 +26,18 @@ export default function StudyPlanner() {
       
 
     const Card = ({title}: {title: string; }) => (
-         <div className="cusrsor-pointer ml-4  mr-2 mt-3 rounded-md text-center justify-center text-black text-bold bg-blue-300 md:h-[2rem] w-[8rem] ">
+         <div className="cusrsor-pointer md:ml-4 mx-auto  md:mr-2 mt-3 rounded-md text-center justify-center text-black text-bold bg-blue-300 md:h-[2rem] md:w-[8rem] w-[18rem] h-[3rem] ">
              {title}
          </div>
       );
-      const DCard = ({ title}: {title:string,}) => (
-        <div className="flex flex-col bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 rounded-md text-center md:w-[15rem] md:h-[12rem] md:ml-2 md:mt-2 md:mr-2">
-          <p className="bg-blue-950 w-[9rem] rounded-md h-[2rem] mx-auto mt-2">{title}</p>
+
+
+    const DCard = ({ title}: {title:string,}) => (
+        <div className="flex flex-col bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 rounded-md text-center md:w-[15rem] md:h-[12rem] md:ml-2 md:mt-2 md:mr-2 ml-2 mt-3 mb-1">
+          {title=== 'Done' && <p className="bg-green-400 w-[9rem] rounded-md h-[2rem] mx-auto mt-2">{title}</p>}
+          {title=== 'Missing' && <p className="bg-red-600 w-[9rem] rounded-md h-[2rem] mx-auto mt-2">{title}</p>}
+          {title=== 'Upcoming' && <p className="bg-blue-900 w-[9rem] rounded-md h-[2rem] mx-auto mt-2">{title}</p>}
+           
           {title === 'Missing' && (
             <div>
               {topics.map((topic, index) => {
@@ -46,7 +51,7 @@ export default function StudyPlanner() {
               })}
             </div>
           )}
-          {title === 'in_progress' && (
+          {title === 'Upcoming' && (
             <div>
               {topics.map((topic, index) => {
                 //const nowDate = new Date();
@@ -59,13 +64,12 @@ export default function StudyPlanner() {
               })}
             </div>
           )}
-          {title === 'Completed' && (
+          {title === 'Done' && (
             <div>
               {topics.map((topic, index) => {
                 //const nowDate = new Date();
                 //const deadline = new Date(topic.deadline);
-      
-                // Only render if status is 'Pending'
+    
                 return topic.status === 'Completed' ? (
                   <p key={index} >{topic.title}</p>
                 ) : null;
@@ -132,10 +136,10 @@ return(
     )}
     </div>
   </div>
-  <div className="min-h-96 w-full  sm:w-3/4 mt-0 md : h-[35rem] ml-3.5 mb-2 lg:w-1/2 max-w-4xl bg-yellow-100 flex flex-col rounded-md shadow-lg">
+  <div className="flex flex-col min-h-96 w-full mt-3 sm:w-3/4  md:h-[35rem] ml-3.5 mb-2 lg:w-1/2 max-w-4xl bg-yellow-100  rounded-md shadow-lg">
     
-    <div className="flex flex-row">
-     <div className=" overflow-y-auto h-85 flex flex-col  mt-3 ml-3  rounded-md md: w-[10rem] bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900">
+    <div className="flex flex-col md:flex-row ">
+     <div className=" overflow-y-auto h-85 flex flex-col  mt-3 ml-10  w-[25rem] rounded-md md:w-[10rem] bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900">
       {subject.map((sub, index) => (
         <Card key={index} title={sub.title} />
       ))}
