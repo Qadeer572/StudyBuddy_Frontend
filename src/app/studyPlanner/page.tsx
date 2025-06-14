@@ -29,7 +29,7 @@ return(
             <div className="flex flex-col p-1.5 items-center justify-center  h-[20rem] space-y-4">
                 <input
                  placeholder=" Subject Name" 
-                 className="bg-blue-300 text-black sm:w-[18rem]  md:w-[18rem] h-[3rem] rounded-md"
+                 className="bg-blue-300 text-black sm:w-[18rem]  md: w-[18rem] h-[3rem] rounded-md"
                  type="text"
                  required
                  />
