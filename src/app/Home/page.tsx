@@ -29,7 +29,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 flex items-center justify-center px-2">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-        <Card title="Study Planner" desc="Plan your daily or weekly study schedule." emoji="📅" route="/planner" />
+        <Card title="Study Planner" desc="Plan your daily or weekly study schedule." emoji="📅" route="/studyPlanner" />
         <Card title="Flashcards" desc="Memorize key concepts quickly." emoji="🧠" route="/flashcards" />
         <Card title="Group Study" desc="Collaborate with your study group." emoji="👥" route="/groupstudy" />
         <Card title="Analytics" desc="Track your progress over time." emoji="📊" route="/analytics" />

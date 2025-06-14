@@ -1,10 +1,11 @@
 'use client';
 import React from "react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function StudyPlanner() {
     const [activeForm, setActiveForm] = useState<'form1' | 'form2' | null>('form1');
-
+    const router = useRouter();
     const topics = [
         { title: 'LA', deadline: '2023-10-30', status: 'Pending', reminder: 'Yes' },
         { title: 'Maths', deadline: '2023-11-01', status: 'Completed', reminder: 'Yes' },
@@ -128,8 +129,8 @@ export default function StudyPlanner() {
                     )}
                     
                 </div>
-                <div className="flex mt-5 ml-3 mb-2 bg-red-600 w-[7rem] h-[2rem] rounded-md text-center ">
-                      <button className="mx-auto">  ← Home</button>
+                <div className="cursor-pointer flex mt-5 ml-3 mb-2 bg-red-600 w-[7rem] h-[2rem] rounded-md text-center hover:bg-blue-700 text-black font-bold text-sm md:w-[8rem] md:h-[2.5rem] md:ml-4 md:mt-2 md:mb-3">
+                      <button className="mx-auto" type="submit" onClick={() => router.push('./Home')}>  ← Home</button>
                     </div>
             </div>
             <div className="flex flex-col min-h-96 w-full max-w-4xl mt-3 mb-2 bg-yellow-100 rounded-md  shadow-lg sm:w-3/4 md:h-[35rem] md:ml-3.5 md:w-1/2">

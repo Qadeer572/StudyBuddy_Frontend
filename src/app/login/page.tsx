@@ -27,7 +27,7 @@ export default function LoginPage() {
     if (res.ok) {
       setMessage(data.message);
       setMessageType('success');
-      router.push('/studyPlanner');
+      router.push('/Home');
     } else {
       setMessage(data.error);
       setMessageType('error');
