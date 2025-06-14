@@ -3,6 +3,15 @@ import React from "react";
 import { useState } from "react";
 export default function StudyPlanner() {
     const[activeForm,setActiveForm]=useState<'form1' | 'form2' | null>(null);
+    //const [subject,setsubject]=useState<string []>
+    //const [selected,setSelected]= useState('')
+
+    const Card = ({title}: {title: string; }) => (
+         <div className="cusrsor-pointer ml-4  mr-2 mt-3 rounded-md text-center justify-center text-black text-bold bg-blue-300 md:h-[2rem] w-[8rem] ">
+             {title}
+         </div>
+      );
+    
 return(
 
 <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 flex flex-col sm:flex-col md:flex-row items-center justify-end px-4 max-w-full">
@@ -64,6 +73,37 @@ return(
     <h1 className="text-4xl font-bold text-center text-gray-800 p-8 font-cursive">
       StudyPlanner
     </h1>
+    <div className="flex flex-row">
+     <div className=" overflow-y-auto h-85 flex flex-col  ml-3  rounded-md md: w-[10rem] bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900">
+       <Card title="Notes"/>
+       <Card title="Notes"/>
+       <Card title="Notes"/>
+       <Card title="Notes"/>
+       <Card title="Notes"/>
+       <Card title="Notes"/>
+       <Card title="Notes"/>
+       <Card title="Notes"/>
+       <Card title="Notes"/>
+       <Card title="Notes"/>
+       <Card title="Notes"/>
+       <Card title="Notes"/>
+       
+     </div>
+     <div className="flex  ml-5 overflow-y-auto bg-white rounded-md shadow-blue-950 md: w-[27rem] h-[15rem]">
+        <table className="flex flex-col text-black">
+            
+            <thead>
+            <tr className="flex p-1 ">
+                <th className="ml-2 border-2 md: w-[6rem] ">Topic</th>
+                <th className="ml-2 border-2 md: w-[6rem]">Deadline</th>
+                <th className="ml-2 border-2 md: w-[6rem] ">Status</th>
+                <th className="ml-2 border-2 md: w-[6rem]">Reminder</th>
+            </tr>
+            </thead>
+             
+        </table>
+     </div>
+     </div>
   </div>
 </div>
 
