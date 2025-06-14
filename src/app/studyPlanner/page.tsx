@@ -57,8 +57,8 @@ export default function StudyPlanner() {
     );
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 flex flex-col items-center justify-end px-2 sm:px-4 md:px-4 md:flex-row md:justify-end md:items-center">
-            <div className="min-h-96 w-full mt-0 mb-4 max-w-4xl bg-yellow-100 flex flex-col rounded-md shadow-lg md:min-h-[35rem] md:w-1/2 md:ml-3">
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 flex flex-col items-center justify-end px-2 sm:px-4 md:px-4 md:flex-row md:justify-end  md:items-center">
+            <div className="min-h-96 w-full mt-0 mb-4 max-w-4xl bg-yellow-100 flex flex-col rounded-md shadow-lg md:min-h-[35rem] md:w-1/2  md:mt-4 md:ml-3">
                 <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-gray-800 p-4 sm:p-6 md:p-8 font-cursive">
                     StudyPlanner
                 </h1>
@@ -70,7 +70,7 @@ export default function StudyPlanner() {
                         Add Subject
                     </button>
                     <button 
-                        className="w-full max-w-[10rem] h-[2.5rem] mt-2 bg-amber-600 rounded-md text-sm sm:text-base md:w-[10rem] md:h-[3rem]" 
+                        className="w-full max-w-[10rem] h-[2.5rem] mt-2 bg-amber-600 md:mt-0 rounded-md text-sm sm:text-base md:w-[10rem] md:h-[3rem]" 
                         onClick={() => setActiveForm('form2')}
                     >
                         Add Topic
@@ -96,6 +96,7 @@ export default function StudyPlanner() {
                                 </button>
                             </div>
                         </form>
+                        
                     )}
                     {activeForm === 'form2' && (
                         <form>
@@ -125,9 +126,13 @@ export default function StudyPlanner() {
                             </div>
                         </form>
                     )}
+                    
                 </div>
+                <div className="flex mt-5 ml-3 mb-2 bg-red-600 w-[7rem] h-[2rem] rounded-md text-center ">
+                      <button className="mx-auto">  ← Home</button>
+                    </div>
             </div>
-            <div className="flex flex-col min-h-96 w-full max-w-4xl mt-3 mb-2 bg-yellow-100 rounded-md shadow-lg sm:w-3/4 md:h-[35rem] md:ml-3.5 md:w-1/2">
+            <div className="flex flex-col min-h-96 w-full max-w-4xl mt-3 mb-2 bg-yellow-100 rounded-md  shadow-lg sm:w-3/4 md:h-[35rem] md:ml-3.5 md:w-1/2">
                 <div className="flex flex-col md:flex-row">
                     <div className="overflow-y-auto h-[10rem] sm:h-[12rem] flex flex-col mt-3 ml-2 sm:ml-10 w-full max-w-[18rem] sm:max-w-[25rem] rounded-md   md:w-[10rem] md:h-85 bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900">
                         {subject.map((sub, index) => (
