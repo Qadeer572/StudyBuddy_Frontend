@@ -23,13 +23,13 @@ return(
         <button className="w-[10rem] h-[3rem] bg-amber-600 rounded-md " onClick={() =>setActiveForm('form1')} >Add Subject</button>
         <button className="w-[10rem] h-[3rem] bg-amber-600 rounded-md" onClick={() =>setActiveForm('form2')}>Add Topic</button>
     </div>
-    <div className=" bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 rounded-md mx-auto sm: w-sm md:w-sm ">
+    <div className=" bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 rounded-md mx-auto sm:w-sm md:w-sm ">
     {activeForm === 'form1' && (
         <form action="">
             <div className="flex flex-col p-1.5 items-center justify-center  h-[20rem] space-y-4">
                 <input
                  placeholder=" Subject Name" 
-                 className="bg-blue-300 text-black md: w-[18rem] h-[3rem] rounded-md"
+                 className="bg-blue-300 text-black sm:w-[18rem]  md:w-[18rem] h-[3rem] rounded-md"
                  type="text"
                  required
                  />
@@ -61,7 +61,7 @@ return(
               placeholder=" DeadLine" 
               className="bg-blue-300 text-black md: w-[18rem] h-[3rem] rounded-md"
               type="Date" />
-              <button className="bg-blue-600 md:w-[9rem] h-[3rem] rounded-md hover:bg-red-500">
+              <button className="bg-blue-600 sm:w-[12rem] md:w-[9rem] h-[3rem] rounded-md hover:bg-red-500">
                  Add Topic</button>
                
          </div>
