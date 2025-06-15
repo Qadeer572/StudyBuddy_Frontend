@@ -26,11 +26,14 @@ export default function StudyPlanner() {
         { title: 'Maths', deadline: '2023-11-01', status: 'Completed', reminder: 'Yes' },
         { title: 'Physics', deadline: '2023-11-05', status: 'Pending', reminder: 'Yes' }
     ];
-    const subject = [
-        { id: 1, title: 'Maths' },
-        { id: 2, title: 'Database' },
-        { id: 3, title: 'English' }
-    ];
+
+    type Subject = {
+        id: number;
+        title: string;
+    };
+
+    const subjects: Subject[]=[];
+
 
     const Card = ({ title }: { title: string }) => (
         <div className="cursor-pointer mx-auto mt-3 rounded-md text-center justify-center text-black font-bold bg-blue-300 h-[2rem] w-[15rem] md:h-[2rem] md:w-[8rem] md:ml-4 md:mr-2">
@@ -112,7 +115,7 @@ export default function StudyPlanner() {
                                     name="Subject" 
                                     id="Subject"
                                 >
-                                    {subject.map((sub, index) => (
+                                    {subjects.map((sub, index) => (
                                         <option key={index} value={sub.title}>{sub.title}</option>
                                     ))}
                                 </select>
@@ -136,7 +139,7 @@ export default function StudyPlanner() {
             <div className="flex flex-col min-h-96 w-full max-w-4xl mt-3 mb-2  bg-blue-950 rounded-md  shadow-lg sm:w-3/4 md:h-[35rem] md:ml-3.5 md:w-1/2">
                 <div className="flex flex-col md:flex-row">
                     <div className="overflow-y-auto h-[10rem] sm:h-[12rem] flex flex-col mt-3 ml-2 sm:ml-10 w-full max-w-[18rem] sm:max-w-[25rem] rounded-md   md:w-[10rem] md:h-85 bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900">
-                        {subject.map((sub, index) => (
+                        {subjects.map((sub, index) => (
                             <Card key={index} title={sub.title} />
                         ))}
                     </div>
@@ -160,10 +163,10 @@ export default function StudyPlanner() {
                                             <td className="ml-2 flex-1 md:w-[6rem]">{topic.title}</td>
                                             <td className="ml-2 flex-1 md:w-[6rem]">{topic.deadline}</td>
                                             <td className="ml-2 flex-1 md:w-[6rem]">
-                                                <select name="status" id="status" className="w-full text-xs sm:text-sm">
-                                                    <option value="pending">Not Started</option>
-                                                    <option value="in_progress">In Progress</option>
-                                                    <option value="completed">Completed</option>
+                                                <select name="status" id="status" className="w-full text-xs  sm:text-sm">
+                                                    <option value="pending" className="text-black">Not Started</option>
+                                                    <option value="in_progress" className="text-black">In Progress</option>
+                                                    <option value="completed" className="text-black">Completed</option>
                                                 </select>
                                             </td>
                                             <td className="flex ml-2 mx-auto justify-center flex-1 md:w-[6rem]">
