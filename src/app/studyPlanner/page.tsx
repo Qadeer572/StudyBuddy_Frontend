@@ -40,7 +40,7 @@ export default function StudyPlanner() {
         setSubjects(prev => [...prev, newSubject]);
         const token = localStorage.getItem("token");
 
-        const apiRout=' https://studybuddys-454c3f01f785.herokuapp.com/addSubject/'
+        const apiRout=' https://studybuddys-454c3f01f785.herokuapp.com/studyplanner/addSubject/'
         const res = await fetch(apiRout, {
             method: 'POST',
             headers: {
