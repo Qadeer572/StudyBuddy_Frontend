@@ -275,7 +275,7 @@ export default function StudyPlanner() {
 
 
 
-  
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 flex flex-col items-center justify-end px-2 sm:px-4 md:px-4 md:flex-row md:justify-end md:items-center">
       <div className="min-h-96 w-full mt-0 mb-4 max-w-4xl bg-blue-950 flex flex-col rounded-md shadow-lg md:min-h-[35rem] md:w-1/2 md:mt-4 md:ml-3">
@@ -418,23 +418,24 @@ export default function StudyPlanner() {
                                   value={topic.status}
                                   onChange={async (e) => {
                                     const newStatus = e.target.value as Topic['status'];
-                                    const success = await statusHandler({ status: newStatus, topic_id: topic.id });
-                                    if (success) {
+                                    
+                                    
                                       setTopics((prev) =>
                                         prev.map((t, i) =>
                                           i === index ? { ...t, status: newStatus } : t
                                         )
                                       );
-                                    }
+                                     
+                                     statusHandler({ status: newStatus, topic_id: topic.id });
                                   }}
                                 >
-                                  <option value="not_started" className="text-black">
+                                  <option value="not_started" className="text-white">
                                     Not Started
                                   </option>
-                                  <option value="In progress" className="text-black">
+                                  <option value="In progress" className="text-white">
                                     In Progress
                                   </option>
-                                  <option value="Completed" className="text-black">
+                                  <option value="Completed" className="text-white">
                                     Completed
                                   </option>
                                 </select>
