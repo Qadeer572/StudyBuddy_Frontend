@@ -33,7 +33,7 @@ export default function StudyPlanner() {
 
   // Fetch all subjects
   const getAllSubjects = async () => {
-    const apiRoute = 'http://127.0.0.1:8000/studyplanner/allSubjects/';
+    const apiRoute = 'https://studybuddys-454c3f01f785.herokuapp.com/studyplanner/allSubjects/';
     try {
       const res = await fetch(apiRoute, {
         method: 'GET',
@@ -62,9 +62,12 @@ export default function StudyPlanner() {
     }
   };
 
+
+
+
   // Fetch all topics
   const getAllTopics = async () => {
-    const apiRoute = 'http://127.0.0.1:8000/studyplanner/allTopics/';
+    const apiRoute = 'https://studybuddys-454c3f01f785.herokuapp.com/studyplanner/allTopics/';
     try {
       const res = await fetch(apiRoute, {
         method: 'GET',
@@ -95,13 +98,19 @@ export default function StudyPlanner() {
     }
   };
 
+
+
+
   useEffect(() => {
     getAllSubjects();
     getAllTopics();
   }, []);
 
+
+
+
   const statusHandler = async ({ status, topic_id }: { status: Topic['status']; topic_id: number }) => {
-    const apiRoute = 'http://127.0.0.1:8000/studyplanner/updateStatus/';
+    const apiRoute = 'https://studybuddys-454c3f01f785.herokuapp.com/studyplanner/updateStatus/';
     try {
       const res = await fetch(apiRoute, {
         method: 'POST',
@@ -127,6 +136,9 @@ export default function StudyPlanner() {
     }
   };
 
+
+
+
   const addSubject = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
@@ -135,7 +147,7 @@ export default function StudyPlanner() {
       return;
     }
     try {
-      const apiRoute = 'http://127.0.0.1:8000/studyplanner/addSubject/';
+      const apiRoute = 'https://studybuddys-454c3f01f785.herokuapp.com/studyplanner/addSubject/';
       const res = await fetch(apiRoute, {
         method: 'POST',
         headers: {
@@ -158,6 +170,8 @@ export default function StudyPlanner() {
     setDescription('');
   };
 
+
+
   const addTopic = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
@@ -166,7 +180,7 @@ export default function StudyPlanner() {
       return;
     }
     try {
-      const apiRoute = 'http://127.0.0.1:8000/studyplanner/addTopic/';
+      const apiRoute = 'https://studybuddys-454c3f01f785.herokuapp.com/studyplanner/addTopic/';
       const res = await fetch(apiRoute, {
         method: 'POST',
         headers: {
@@ -196,6 +210,8 @@ export default function StudyPlanner() {
     setStatus('');
   };
 
+
+
   const subjectHandler = (title: string) => {
     const subject = subjects.find((sub) => sub.name === title);
     if (subject) {
@@ -211,6 +227,8 @@ export default function StudyPlanner() {
       {title}
     </div>
   );
+
+
 
   const DCard = ({ title }: { title: string }) => (
     <div className="flex flex-col bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 rounded-md text-center w-[10rem] h-[10rem] ml-2 mt-3 mb-1 md:w-[15rem] md:h-[12rem] md:ml-2 md:mt-2 md:mr-2">
@@ -255,6 +273,9 @@ export default function StudyPlanner() {
     </div>
   );
 
+
+
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 flex flex-col items-center justify-end px-2 sm:px-4 md:px-4 md:flex-row md:justify-end md:items-center">
       <div className="min-h-96 w-full mt-0 mb-4 max-w-4xl bg-blue-950 flex flex-col rounded-md shadow-lg md:min-h-[35rem] md:w-1/2 md:mt-4 md:ml-3">
