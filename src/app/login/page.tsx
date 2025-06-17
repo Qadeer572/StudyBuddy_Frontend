@@ -13,7 +13,7 @@ export default function LoginPage() {
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
     
-    const apiRout = 'http://127.0.0.1:8000/login/';
+    const apiRout = ' https://studybuddys-454c3f01f785.herokuapp.com/login/';
     const res = await fetch(apiRout, {
       method: 'POST',
       headers: {
