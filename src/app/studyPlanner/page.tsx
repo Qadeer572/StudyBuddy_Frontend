@@ -1,6 +1,5 @@
 'use client';
-import React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function StudyPlanner() {
@@ -10,8 +9,11 @@ export default function StudyPlanner() {
   const [description, setDescription] = useState('');
   const [topicTitle, setTopicTitle] = useState('');
   const [deadline, setDeadline] = useState('');
-  const [status, setStatus] = useState(''); // Used only for form
+  const [status, setStatus] = useState('');
   const [selectedSubject, setSelectedSubject] = useState(0);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [topics, setTopics] = useState<Topic[]>([]);
+  const [updatingTopics, setUpdatingTopics] = useState<Set<number>>(new Set()); // Track topics being updated
 
   type Topic = {
     id: number;
@@ -19,7 +21,7 @@ export default function StudyPlanner() {
     deadline: Date;
     status: 'not_started' | 'In progress' | 'Completed';
     subject_id: number;
-    reminder?: boolean; // Added for future reminder support
+    reminder?: boolean;
   };
 
   type Subject = {
@@ -28,14 +30,11 @@ export default function StudyPlanner() {
     description?: string;
   };
 
-  const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [topics, setTopics] = useState<Topic[]>([]);
+  const API_BASE = 'https://studybuddys-454c3f01f785.herokuapp.com/studyplanner/';
 
-  // Fetch all subjects
   const getAllSubjects = async () => {
-    const apiRoute = 'https://studybuddys-454c3f01f785.herokuapp.com/studyplanner/allSubjects/';
     try {
-      const res = await fetch(apiRoute, {
+      const res = await fetch(`${API_BASE}allSubjects/`, {
         method: 'GET',
         headers: {
           'content-type': 'application/json',
@@ -46,9 +45,8 @@ export default function StudyPlanner() {
       if (!res.ok) throw new Error('Failed to fetch subjects');
       const data = await res.json();
       if (data.status && Array.isArray(data.subjects)) {
-        
-        const newSubjects = data.subjects.map((sub: Subject, index: number) => ({
-          id: sub.id || index + 1,
+        const newSubjects = data.subjects.map((sub: Subject) => ({
+          id: sub.id,
           name: sub.name,
           description: sub.description || '',
         }));
@@ -62,14 +60,9 @@ export default function StudyPlanner() {
     }
   };
 
-
-
-
-  // Fetch all topics
   const getAllTopics = async () => {
-    const apiRoute = 'https://studybuddys-454c3f01f785.herokuapp.com/studyplanner/allTopics/';
     try {
-      const res = await fetch(apiRoute, {
+      const res = await fetch(`${API_BASE}allTopics/`, {
         method: 'GET',
         headers: {
           'content-type': 'application/json',
@@ -80,13 +73,13 @@ export default function StudyPlanner() {
       if (!res.ok) throw new Error('Failed to fetch topics');
       const data = await res.json();
       if (data.status && Array.isArray(data.topics)) {
-        const newTopics = data.topics.map((topic: Topic, index: number) => ({
-          id: topic.id || index + 1,
+        const newTopics = data.topics.map((topic: Topic) => ({
+          id: topic.id,
           title: topic.title, // Match backend field
           deadline: new Date(topic.deadline),
           status: topic.status || 'not_started',
           subject_id: topic.subject_id,
-          reminder: topic.reminder || false, // Default to false if not provided
+          reminder: topic.reminder || false,
         }));
         setTopics(newTopics);
       } else {
@@ -98,21 +91,14 @@ export default function StudyPlanner() {
     }
   };
 
-
-
-
   useEffect(() => {
     getAllSubjects();
     getAllTopics();
   }, []);
 
-
-
-
   const statusHandler = async ({ status, topic_id }: { status: Topic['status']; topic_id: number }) => {
-    const apiRoute = 'https://studybuddys-454c3f01f785.herokuapp.com/studyplanner/updateStatus/';
     try {
-      const res = await fetch(apiRoute, {
+      const res = await fetch(`${API_BASE}updateStatus/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -133,11 +119,14 @@ export default function StudyPlanner() {
       console.error('Error updating status:', error);
       alert('Network error: Could not update status');
       return false;
+    } finally {
+      setUpdatingTopics((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(topic_id);
+        return newSet;
+      });
     }
   };
-
-
-
 
   const addSubject = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -147,8 +136,7 @@ export default function StudyPlanner() {
       return;
     }
     try {
-      const apiRoute = 'https://studybuddys-454c3f01f785.herokuapp.com/studyplanner/addSubject/';
-      const res = await fetch(apiRoute, {
+      const res = await fetch(`${API_BASE}addSubject/`, {
         method: 'POST',
         headers: {
           'content-type': 'application/json',
@@ -170,8 +158,6 @@ export default function StudyPlanner() {
     setDescription('');
   };
 
-
-
   const addTopic = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
@@ -180,8 +166,7 @@ export default function StudyPlanner() {
       return;
     }
     try {
-      const apiRoute = 'https://studybuddys-454c3f01f785.herokuapp.com/studyplanner/addTopic/';
-      const res = await fetch(apiRoute, {
+      const res = await fetch(`${API_BASE}addTopic/`, {
         method: 'POST',
         headers: {
           'content-type': 'application/json',
@@ -210,8 +195,6 @@ export default function StudyPlanner() {
     setStatus('');
   };
 
-
-
   const subjectHandler = (title: string) => {
     const subject = subjects.find((sub) => sub.name === title);
     if (subject) {
@@ -227,8 +210,6 @@ export default function StudyPlanner() {
       {title}
     </div>
   );
-
-
 
   const DCard = ({ title }: { title: string }) => (
     <div className="flex flex-col bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 rounded-md text-center w-[10rem] h-[10rem] ml-2 mt-3 mb-1 md:w-[15rem] md:h-[12rem] md:ml-2 md:mt-2 md:mr-2">
@@ -272,9 +253,6 @@ export default function StudyPlanner() {
       </div>
     </div>
   );
-
-
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 flex flex-col items-center justify-end px-2 sm:px-4 md:px-4 md:flex-row md:justify-end md:items-center">
@@ -398,35 +376,43 @@ export default function StudyPlanner() {
                 <tbody>
                   {selectedSubject ? (
                     topics
-                      .filter((topic) => {
-                        return topic.subject_id === selectedSubject;
-                      })
+                      .filter((topic) => topic.subject_id === selectedSubject)
                       .length > 0 ? (
                         topics
                           .filter((topic) => topic.subject_id === selectedSubject)
                           .map((topic, index) => (
-                            <tr key={index} className="flex p-1">
+                            <tr key={topic.id || index} className="flex p-1">
                               <td className="ml-2 flex-1 md:w-[6rem]">{topic.title}</td>
                               <td className="ml-2 flex-1 md:w-[6rem]">
                                 {new Date(topic.deadline).toLocaleDateString()}
                               </td>
-                              <td className="ml-2 flex-1 md:w-[6rem]">
+                              <td className="ml-2 flex-1 md:w-[6rem] relative">
                                 <select
                                   name="status"
                                   id={`status-${topic.id}`}
                                   className="w-full text-xs sm:text-sm text-white bg-gray-800"
                                   value={topic.status}
+                                  disabled={updatingTopics.has(topic.id)}
                                   onChange={async (e) => {
                                     const newStatus = e.target.value as Topic['status'];
-                                    
-                                    
+                                    const previousStatus = topic.status;
+                                    setUpdatingTopics((prev) => new Set(prev).add(topic.id));
+                                    setTopics((prev) =>
+                                      prev.map((t) =>
+                                        t.id === topic.id ? { ...t, status: newStatus } : t
+                                      )
+                                    );
+                                    const success = await statusHandler({
+                                      status: newStatus,
+                                      topic_id: topic.id,
+                                    });
+                                    if (!success) {
                                       setTopics((prev) =>
-                                        prev.map((t, i) =>
-                                          i === index ? { ...t, status: newStatus } : t
+                                        prev.map((t) =>
+                                          t.id === topic.id ? { ...t, status: previousStatus } : t
                                         )
                                       );
-                                     
-                                     statusHandler({ status: newStatus, topic_id: topic.id });
+                                    }
                                   }}
                                 >
                                   <option value="not_started" className="text-white">
@@ -439,16 +425,20 @@ export default function StudyPlanner() {
                                     Completed
                                   </option>
                                 </select>
+                                {updatingTopics.has(topic.id) && (
+                                  <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs">
+                                    ⏳
+                                  </span>
+                                )}
                               </td>
                               <td className="flex ml-2 mx-auto justify-center flex-1 md:w-[6rem]">
                                 <input
                                   type="checkbox"
                                   checked={topic.reminder || false}
                                   onChange={(e) => {
-                                    // Placeholder: Update reminder in backend
                                     setTopics((prev) =>
-                                      prev.map((t, i) =>
-                                        i === index ? { ...t, reminder: e.target.checked } : t
+                                      prev.map((t) =>
+                                        t.id === topic.id ? { ...t, reminder: e.target.checked } : t
                                       )
                                     );
                                   }}
