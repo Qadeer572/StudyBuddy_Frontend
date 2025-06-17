@@ -6,34 +6,62 @@ import { useRouter } from "next/navigation";
 export default function StudyPlanner() {
     const [activeForm, setActiveForm] = useState<'form1' | 'form2' | null>('form1');
     const router = useRouter();
-    const topics = [
-        { title: 'LA', deadline: '2023-10-30', status: 'Pending', reminder: 'Yes' },
-        { title: 'Maths', deadline: '2023-11-01', status: 'Completed', reminder: 'Yes' },
-        { title: 'Physics', deadline: '2023-11-05', status: 'Pending', reminder: 'Yes' },
-        { title: 'LA', deadline: '2023-10-30', status: 'Pending', reminder: 'Yes' },
-        { title: 'Maths', deadline: '2023-11-01', status: 'Completed', reminder: 'Yes' },
-        { title: 'Physics', deadline: '2023-11-05', status: 'Pending', reminder: 'Yes' },
-        { title: 'LA', deadline: '2023-10-30', status: 'Pending', reminder: 'Yes' },
-        { title: 'Maths', deadline: '2023-11-01', status: 'Completed', reminder: 'Yes' },
-        { title: 'Physics', deadline: '2023-11-05', status: 'Pending', reminder: 'Yes' },
-        { title: 'LA', deadline: '2023-10-30', status: 'Pending', reminder: 'Yes' },
-        { title: 'Maths', deadline: '2023-11-01', status: 'Completed', reminder: 'Yes' },
-        { title: 'Physics', deadline: '2023-11-05', status: 'Pending', reminder: 'Yes' },
-        { title: 'LA', deadline: '2023-10-30', status: 'Pending', reminder: 'Yes' },
-        { title: 'Maths', deadline: '2023-11-01', status: 'Completed', reminder: 'Yes' },
-        { title: 'Physics', deadline: '2023-11-05', status: 'Pending', reminder: 'Yes' },
-        { title: 'LA', deadline: '2023-10-30', status: 'Pending', reminder: 'Yes' },
-        { title: 'Maths', deadline: '2023-11-01', status: 'Completed', reminder: 'Yes' },
-        { title: 'Physics', deadline: '2023-11-05', status: 'Pending', reminder: 'Yes' }
-    ];
+
+    const[subjectTitle,setSubjectTitle]=useState('');
+    const[description,setDescription]=useState('');
+
+    type Topics={
+        id: number;
+        title: string;
+        deadline: string;
+        status: 'Pending' | 'In progress' | 'Completed';
+        reminder?: boolean;
+        course?: string;
+    };
+
+    const topics: Topics[] = [];
 
     type Subject = {
         id: number;
         title: string;
+        description?: string;
     };
 
-    const subjects: Subject[]=[];
+    const [subjects, setSubjects] = useState<Subject[]>([]);
 
+    const addSubject = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        //const formData = new FormData(e.currentTarget);
+        const newSubject: Subject = {
+            id: subjects.length + 1,
+            title: subjectTitle,
+            description: description || '',
+        };
+        setSubjects(prev => [...prev, newSubject]);
+        const token = localStorage.getItem("token");
+
+        const apiRout='http://127.0.0.1:8000/studyplanner/addSubject/'
+        const res = await fetch(apiRout, {
+            method: 'POST',
+            headers: {
+              'content-type': 'application/json',
+               Authorization: `Token ${token}`
+            },
+            body: JSON.stringify({subjectTitle,description}),
+            credentials: 'include'
+          });
+        const data=await res.json();  
+        if(data.status)
+        {
+             alert("Subject is added sucessfulyy");
+        }
+        else{
+            alert("failed to load the subject in database");
+        }
+        // Clear form
+        setSubjectTitle('');
+        setDescription('');
+    };
 
     const Card = ({ title }: { title: string }) => (
         <div className="cursor-pointer mx-auto mt-3 rounded-md text-center justify-center text-black font-bold bg-blue-300 h-[2rem] w-[15rem] md:h-[2rem] md:w-[8rem] md:ml-4 md:mr-2">
@@ -41,7 +69,7 @@ export default function StudyPlanner() {
         </div>
     );
 
-    const DCard = ({ title }: { title: string }) => (
+    const DCard = ({ title }: { title: string}) => (
         <div className="flex flex-col bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 rounded-md text-center w-[10rem] h-[10rem] ml-2 mt-3 mb-1 md:w-[15rem] md:h-[12rem] md:ml-2 md:mt-2 md:mr-2">
             {title === 'Done' && <p className="bg-green-400 w-[7rem] rounded-md h-[2rem] mx-auto mt-2 text-sm">{title}</p>}
             {title === 'Missing' && <p className="bg-red-600 w-[7rem] rounded-md h-[2rem] mx-auto mt-2 text-sm">{title}</p>}
@@ -82,20 +110,24 @@ export default function StudyPlanner() {
                 </div>
                 <div className="bg-gradient-to-br mb-1 from-slate-900 via-slate-800 to-blue-900 rounded-md mx-auto w-full max-w-[20rem] sm:max-w-[24rem] md:w-sm">
                     {activeForm === 'form1' && (
-                        <form>
+                        <form onSubmit={(e) => addSubject(e)}>
                             <div className="flex flex-col p-1.5 items-center justify-center h-[18rem] sm:h-[20rem] space-y-4">
                                 <input
                                     placeholder="Subject Name"
+                                    value={subjectTitle}
+                                    onChange={(e) => setSubjectTitle(e.target.value)}
                                     className="bg-blue-300 text-black w-full max-w-[16rem] sm:max-w-[18rem] h-[2.5rem] md:w-[18rem] md:h-[3rem] rounded-md text-sm"
                                     type="text"
                                     required
                                 />
                                 <input
                                     placeholder="Subject Description (optional)"
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
                                     className="bg-blue-300 text-black w-full max-w-[16rem] sm:max-w-[18rem] h-[4rem] md:w-[18rem] md:h-[5rem] rounded-md text-sm"
                                     type="text"
                                 />
-                                <button className="w-[10rem]  ml-3 mb-2 mt-6 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-blue-400/25 transition-all duration-300 ease-in-out transform hover:scale-105 hover:-translate-y-1 border border-white/20 md:w-[9rem] md:h-[3rem]">
+                                <button  className="w-[10rem]  ml-3 mb-2 mt-6 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-blue-400/25 transition-all duration-300 ease-in-out transform hover:scale-105 hover:-translate-y-1 border border-white/20 md:w-[9rem] md:h-[3rem]">
                                     Add Subject
                                 </button>
                             </div>
