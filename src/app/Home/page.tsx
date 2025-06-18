@@ -31,7 +31,7 @@ export default function HomePage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
         <Card title="Study Planner" desc="Plan your daily or weekly study schedule." emoji="📅" route="/studyPlanner" />
         <Card title="Flashcards" desc="Memorize key concepts quickly." emoji="🧠" route="/flashcards" />
-        <Card title="Group Study" desc="Collaborate with your study group." emoji="👥" route="/groupstudy" />
+        <Card title="Group Study" desc="Collaborate with your study group." emoji="👥" route="/groupStudy" />
         <Card title="Analytics" desc="Track your progress over time." emoji="📊" route="/analytics" />
         <Card title="Pomodoro Timer" desc="Boost focus with timed sessions." emoji="⏱️" route="/pomodoro" />
         <Card title="Notes" desc="Organize your study materials." emoji="📝" route="/notes" />
