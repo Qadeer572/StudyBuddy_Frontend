@@ -1,14 +1,7 @@
 'use client';
-import React, { useEffect, useCallback } from 'react';
-import Modal from '@/components/Modal'; 
-import { useState } from 'react';
-import { Book, User, PlusCircle ,Plus } from 'lucide-react';
-
-// Example usage of imported icons
- 
-
- 
-
+import React, { useEffect, useCallback, useState } from 'react';
+import Modal from '@/components/Modal';
+import { Book, PlusCircle, Plus, UserCheck, CheckCircle } from 'lucide-react';
 
 export default function GroupStudyPage() {
     const [createGroup, setCreateGroup] = useState(false);
@@ -27,9 +20,89 @@ export default function GroupStudyPage() {
         created_by: string,
         created_at: Date,
     }
+
+    type Message = {
+        id: number,
+        content: string,
+        sender: string,
+        timestamp: Date,
+    }
+
+    type Topic = {
+        id: number,
+        name: string,
+        created_by: string,
+        created_at: string,
+        status: 'Not Started' | 'In Progress' | 'Completed',
+    }
+
+    type Task = {
+        id: number,
+        description: string,
+        assigned_to: string,
+        due_date: string,
+        complexity: 'Low' | 'Medium' | 'High',
+        is_done: boolean,
+    }
      
-    const [groups, setGroups] = useState<Group[]>([]); 
+    const [groups, setGroups] = useState<Group[]>([]);
     const [activeCard, setActiveCard] = useState<number | null>(null);
+    const [messages] = useState<Message[]>([]);
+    const [newMessage] = useState('');
+    const [topics, setTopics] = useState<Topic[]>([
+        { id: 1, name: 'Calculus - Integration', created_by: 'John Doe', created_at: '2025-06-15', status: 'Not Started' },
+        { id: 2, name: 'Linear Algebra - Matrices', created_by: 'Jane Smith', created_at: '2025-06-16', status: 'In Progress' },
+        { id: 3, name: 'Physics - Mechanics', created_by: 'Alice Brown', created_at: '2025-06-17', status: 'Completed' },
+    ]);
+    const [tasks, setTasks] = useState<Task[]>([
+        { id: 1, description: 'Complete calculus homework', assigned_to: 'John Doe', due_date: '2025-06-20', complexity: 'Medium', is_done: false },
+        { id: 2, description: 'Prepare physics presentation', assigned_to: 'Jane Smith', due_date: '2025-06-22', complexity: 'High', is_done: false },
+    ]);
+    const [newTask, setNewTask] = useState({
+        description: '',
+        assigned_to: '',
+        due_date: '',
+        complexity: 'Low' as 'Low' | 'Medium' | 'High',
+    });
+
+    // Update topic status
+    const updateTopicStatus = (topicId: number, newStatus: 'Not Started' | 'In Progress' | 'Completed') => {
+        setTopics(topics.map(topic => 
+            topic.id === topicId ? { ...topic, status: newStatus } : topic
+        ));
+    };
+
+    // Add new task
+    const addTask = () => {
+        if (!newTask.description.trim() || !newTask.assigned_to.trim() || !newTask.due_date) {
+            alert('All fields are required');
+            return;
+        }
+        const newTaskObj: Task = {
+            id: tasks.length + 1,
+            description: newTask.description,
+            assigned_to: newTask.assigned_to,
+            due_date: newTask.due_date,
+            complexity: newTask.complexity,
+            is_done: false,
+        };
+        setTasks([...tasks, newTaskObj]);
+        setNewTask({ description: '', assigned_to: '', due_date: '', complexity: 'Low' });
+    };
+
+    // Mark task as done
+    const markTaskAsDone = (taskId: number) => {
+        setTasks(tasks.map(task => 
+            task.id === taskId ? { ...task, is_done: true } : task
+        ));
+    };
+
+    // Calculate task tracking
+    const taskTracking = () => {
+        const totalTasks = tasks.length;
+        const completedTasks = tasks.filter(task => task.is_done).length;
+        return { totalTasks, completedTasks };
+    };
 
     // Load groups
     const loadGroups = useCallback(async () => {
@@ -45,20 +118,19 @@ export default function GroupStudyPage() {
             });
 
             const data = await res.json();
-            console.log("API Response (getGroups):", data); // Debug log
+            console.log("API Response (getGroups):", data);
 
             if (res.ok) {
-                // Ensure data.data is an array, default to [] if not
                 const groupsData = Array.isArray(data.data) ? data.data : [];
                 setGroups(groupsData);
             } else {
                 console.error("API Error:", data.message || "Unknown error");
-                setGroups([]); // Reset to empty array on error
+                setGroups([]);
                 alert("Failed to load the Groups of this user");
             }
         } catch (error) {
             console.error("Error loading groups:", error);
-            setGroups([]); // Reset to empty array on error
+            setGroups([]);
             alert("An error occurred while loading groups");
         } finally {
             setIsLoading(false);
@@ -95,11 +167,11 @@ export default function GroupStudyPage() {
                 credentials: 'include'
             });
             const data = await res.json();
-            console.log("API Response (createGroup):", data); // Debug log
+            console.log("API Response (createGroup):", data);
             if (res.ok) {
                 setCreateGroup(false);
                 setGroupName('');
-                await loadGroups(); // Refresh group list
+                await loadGroups();
             } else {
                 alert(data.message || "Failed to create group");
             }
@@ -129,17 +201,16 @@ export default function GroupStudyPage() {
                 credentials: 'include'
             });
             const data = await res.json();
-            console.log("API Response (joinGroup):", data); // Debug log
+            console.log("API Response (joinGroup):", data);
             if (data.status) {
                 setJoinGroup(false);
                 setInviteCode('');
-                await loadGroups(); // Refresh group list
+                await loadGroups();
             } else {
                 alert(data.message || "Failed to join group");
             }
         } catch (error) {
             console.error("Error joining group:", error);
-            alert(error)
             alert("An error occurred while joining the group");
         } finally {
             setIsLoading(false);
@@ -147,13 +218,11 @@ export default function GroupStudyPage() {
     };
 
     const activeCardDetail = () => {
-        // Safeguard: Check if groups is an array
         if (!Array.isArray(groups)) {
             console.error("groups is not an array:", groups);
             return null;
         }
         const group = groups.find(group => group.id === activeCard);
-        console.log("Active Card ID:", group);
         if (group) {
             return (
                 <div className="flex flex-col ml-3">
@@ -196,6 +265,8 @@ export default function GroupStudyPage() {
         </div>
     );
 
+    const { totalTasks, completedTasks } = taskTracking();
+
     return (
         <div className="flex flex-col md:mx-auto min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900">
             <div>
@@ -212,32 +283,29 @@ export default function GroupStudyPage() {
                     </div>
                     <div className="flex justify-center p-4">
                         <button
-                        onClick={() => setCreateGroup(true)}
-                        className={`flex items-center justify-center gap-2 w-[50%] h-[3rem] rounded-md text-white font-medium transition
-                                    ${isLoading 
-                                        ? 'bg-gray-400 cursor-not-allowed' 
-                                        : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500'
-                                    }`}
-                        disabled={isLoading}
+                            onClick={() => setCreateGroup(true)}
+                            className={`flex items-center justify-center gap-2 w-[50%] h-[3rem] rounded-md text-white font-medium transition
+                                        ${isLoading 
+                                            ? 'bg-gray-400 cursor-not-allowed' 
+                                            : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500'
+                                        }`}
+                            disabled={isLoading}
                         >
-                        <PlusCircle className="w-5 h-5" />
-                        Create
+                            <PlusCircle className="w-5 h-5" />
+                            Create
                         </button>
-                        
-
                         <button
-                        onClick={() => setJoinGroup(true)}
-                        className={`flex items-center justify-center gap-2 ml-2 w-[50%] h-[3rem] rounded-md text-white font-medium transition 
-                                    ${isLoading 
-                                        ? 'bg-gray-400 cursor-not-allowed' 
-                                        : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500'
-                                    }`}
-                        disabled={isLoading}
+                            onClick={() => setJoinGroup(true)}
+                            className={`flex items-center justify-center gap-2 ml-2 w-[50%] h-[3rem] rounded-md text-white font-medium transition 
+                                        ${isLoading 
+                                            ? 'bg-gray-400 cursor-not-allowed' 
+                                            : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500'
+                                        }`}
+                            disabled={isLoading}
                         >
-                        <User className="w-5 h-5" />
-                        Join
+                            <UserCheck className="w-5 h-5" />
+                            Join
                         </button>
-
                     </div>
                     <Modal isOpen={createGroup} onClose={() => { setCreateGroup(false); setGroupName(''); }} title="Create Group">
                         <div className='flex flex-col p-4 text-black'>
@@ -274,7 +342,6 @@ export default function GroupStudyPage() {
                             </div>
                         </div>
                     </Modal>
-
                     <Modal isOpen={joinGroup} onClose={() => { setJoinGroup(false); setInviteCode(''); }} title="Join Group">
                         <div className='flex flex-col p-4 text-black'>
                             <div className='flex flex-row mb-2 mx-auto'>
@@ -310,7 +377,6 @@ export default function GroupStudyPage() {
                             </div>
                         </div>
                     </Modal>
-                     
                     <div className="flex flex-col">  
                         {isLoading ? (
                             <p className="text-white text-center">Loading groups...</p>
@@ -363,45 +429,261 @@ export default function GroupStudyPage() {
                             </div>
                         </div>
                     </div>
-
                     {activePanel === 'StudyPlanner' && (
-                        <div className=' flex flex-col h-auto bg-blue-950'>
-                             <div className=' flex flex-col w-full h-[10rem]  rounded-md'>
-                              <div className='flex ml-3 mt-3'>
-                                 <Book className="icon ml-3" />
-                                 <h1 className='text-xl ml-3'>Shared Study Planner</h1>
-                              </div>
-                              <div className='flex mx-auto h-[45%] justify-center mt-3 outline-black/5 dark:bg-slate-800 dark:shadow-none dark:-outline-offset-1 dark:outline-white/10 rounded-xl w-[95%] '>
-                                   <div className='flex h-[80%] text-white justify-center item-center mx-auto my-auto w-[95%]'>
-                                        <input type="text" className='bg-gray-700 w-[75%] my-auto h-[75%] ml-3 rounded-xl' placeholder=' e.g Calculus - Integration By Parts'/>
-                                        <input type="Date" className='bg-gray-700 h-[75%] my-auto ml-3 rounded-xl'/>
+                        <div className='flex flex-col h-auto bg-blue-950 p-4 rounded-md'>
+                            <div className='flex flex-col w-full h-[10rem] rounded-md'>
+                                <div className='flex ml-3 mt-3'>
+                                    <Book className="icon ml-3" />
+                                    <h1 className='text-xl ml-3'>Shared Study Planner</h1>
+                                </div>
+                                <div className='flex mx-auto h-[45%] justify-center mt-3 outline-black/5 dark:bg-slate-800 dark:shadow-none dark:-outline-offset-1 dark:outline-white/10 rounded-xl w-[95%]'>
+                                    <div className='flex h-[80%] text-white justify-center item-center mx-auto my-auto w-[95%]'>
+                                        <input type="text" className='bg-gray-700 w-[75%] my-auto h-[75%] ml-3 rounded-xl' placeholder='e.g Calculus - Integration By Parts'/>
+                                        <input type="date" className='bg-gray-700 h-[75%] my-auto ml-3 rounded-xl'/>
                                         <button
-                                            className={`flex items-center justify-center gap-2 w-[5%] h-[75%]  my-auto ml-3 rounded-xl text-white font-medium transition
+                                            className={`flex items-center justify-center gap-2 w-[5%] h-[75%] my-auto ml-3 rounded-xl text-white font-medium transition
                                                         ${isLoading 
                                                             ? 'bg-gray-400 cursor-not-allowed' 
                                                             : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500'
                                                         }`}
                                             disabled={isLoading}
-                                            >
+                                        >
                                             <Plus className="w-5 h-5" />
-                                            
                                         </button>
-                                   </div>
-                              </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className='flex flex-col mt-4 w-full'>
+                                <h2 className='text-lg text-white mb-2'>Topics</h2>
+                                {topics.length > 0 ? (
+                                    topics.map((topic) => (
+                                        <div key={topic.id} className='flex flex-row bg-slate-800 rounded-md p-3 mb-2 w-[95%] mx-auto'>
+                                            <div className='flex flex-col w-[60%]'>
+                                                <h3 className='text-white font-medium'>{topic.name}</h3>
+                                                <p className='text-sm text-gray-400'>Created by: {topic.created_by}</p>
+                                                <p className='text-sm text-gray-400'>Created on: {topic.created_at}</p>
+                                                <div className='flex flex-row mt-2 gap-2'>
+                                                    <button
+                                                        onClick={() => updateTopicStatus(topic.id, 'Not Started')}
+                                                        className={`px-2 py-1 rounded text-sm text-white
+                                                                    ${topic.status === 'Not Started' 
+                                                                        ? 'bg-red-600' 
+                                                                        : 'bg-gray-600 hover:bg-red-700'
+                                                                    }`}
+                                                        disabled={isLoading}
+                                                    >
+                                                        Not Started
+                                                    </button>
+                                                    <button
+                                                        onClick={() => updateTopicStatus(topic.id, 'In Progress')}
+                                                        className={`px-2 py-1 rounded text-sm text-white
+                                                                    ${topic.status === 'In Progress' 
+                                                                        ? 'bg-yellow-600' 
+                                                                        : 'bg-gray-600 hover:bg-yellow-700'
+                                                                    }`}
+                                                        disabled={isLoading}
+                                                    >
+                                                        In Progress
+                                                    </button>
+                                                    <button
+                                                        onClick={() => updateTopicStatus(topic.id, 'Completed')}
+                                                        className={`px-2 py-1 rounded text-sm text-white
+                                                                    ${topic.status === 'Completed' 
+                                                                        ? 'bg-green-600' 
+                                                                        : 'bg-gray-600 hover:bg-green-700'
+                                                                    }`}
+                                                        disabled={isLoading}
+                                                    >
+                                                        Completed
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div className='flex flex-col w-[40%] justify-center items-end'>
+                                                <span className={`text-white px-3 py-1 rounded
+                                                                ${topic.status === 'Not Started' ? 'bg-red-600' : 
+                                                                  topic.status === 'In Progress' ? 'bg-yellow-600' : 
+                                                                  'bg-green-600'}`}>
+                                                    {topic.status}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p className='text-gray-400 text-center'>No topics available</p>
+                                )}
+                            </div>
                         </div>
-                        </div>
-                       
                     )}
-
                     {activePanel === 'GroupTask' && (
-                        <div className='w-full h-[10rem] bg-green-600'>
-                            <h1>Group Task</h1>
+                        <div className='flex flex-col h-auto bg-blue-950 p-4 rounded-md'>
+                            <h1 className='text-xl text-white mb-4'>Group Tasks</h1>
+                            <div className='flex flex-col bg-slate-800 rounded-md p-4 mb-4'>
+                                <h2 className='text-lg text-white mb-2'>Task Tracking</h2>
+                                <p className='text-white'>Completed: {completedTasks} / {totalTasks} tasks</p>
+                                <div className='w-full bg-gray-700 rounded-full h-2.5 mt-2'>
+                                    <div 
+                                        className='bg-green-600 h-2.5 rounded-full' 
+                                        style={{ width: `${totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0}%` }}
+                                    ></div>
+                                </div>
+                            </div>
+                            <div className='flex flex-col bg-slate-800 rounded-md p-4 mb-4'>
+                                <h2 className='text-lg text-white mb-2'>Add New Task</h2>
+                                <div className='flex flex-col gap-2 lg:gap-4'>
+                                    <div className='flex flex-col lg:flex-row gap-2 lg:gap-4'>
+                                        <input
+                                            type='text'
+                                            value={newTask.description}
+                                            onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                                            placeholder='Task description'
+                                            className='bg-gray-700 text-white rounded-md p-2 lg:flex-1'
+                                            disabled={isLoading}
+                                        />
+                                        <input
+                                            type='text'
+                                            value={newTask.assigned_to}
+                                            onChange={(e) => setNewTask({ ...newTask, assigned_to: e.target.value })}
+                                            placeholder='Assigned to'
+                                            className='bg-gray-700 text-white rounded-md p-2 lg:flex-1'
+                                            disabled={isLoading}
+                                        />
+                                    </div>
+                                    <div className='flex flex-col lg:flex-row gap-2 lg:gap-4'>
+                                        <input
+                                            type='date'
+                                            value={newTask.due_date}
+                                            onChange={(e) => setNewTask({ ...newTask, due_date: e.target.value })}
+                                            className='bg-gray-700 text-white rounded-md p-2 lg:flex-1'
+                                            disabled={isLoading}
+                                        />
+                                        <div className='flex gap-2 lg:flex-1'>
+                                            <button
+                                                onClick={() => setNewTask({ ...newTask, complexity: 'Low' })}
+                                                className={`flex-1 px-2 py-1 rounded text-sm text-white
+                                                            ${newTask.complexity === 'Low' 
+                                                                ? 'bg-green-600' 
+                                                                : 'bg-gray-600 hover:bg-green-700'
+                                                            }`}
+                                                disabled={isLoading}
+                                            >
+                                                Low
+                                            </button>
+                                            <button
+                                                onClick={() => setNewTask({ ...newTask, complexity: 'Medium' })}
+                                                className={`flex-1 px-2 py-1 rounded text-sm text-white
+                                                            ${newTask.complexity === 'Medium' 
+                                                                ? 'bg-yellow-600' 
+                                                                : 'bg-gray-600 hover:bg-yellow-700'
+                                                            }`}
+                                                disabled={isLoading}
+                                            >
+                                                Medium
+                                            </button>
+                                            <button
+                                                onClick={() => setNewTask({ ...newTask, complexity: 'High' })}
+                                                className={`flex-1 px-2 py-1 rounded text-sm text-white
+                                                            ${newTask.complexity === 'High' 
+                                                                ? 'bg-red-600' 
+                                                                : 'bg-gray-600 hover:bg-red-700'
+                                                            }`}
+                                                disabled={isLoading}
+                                            >
+                                                High
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div className='flex justify-center'>
+                                        <button
+                                            onClick={addTask}
+                                            className={`flex items-center justify-center gap-2 w-[8rem] h-[2rem] sm:w-[7rem] sm:h-[2.5rem] lg:w-[8rem] lg:h-[2.5rem] rounded-md text-white font-medium text-sm transition
+                                                        ${isLoading 
+                                                            ? 'bg-gray-400 cursor-not-allowed' 
+                                                            : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500'
+                                                        }`}
+                                            disabled={isLoading}
+                                        >
+                                            <Plus className=" ml-2 w-4 h-4" />
+                                            Assign Task
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className='flex flex-col'>
+                                <h2 className='text-lg text-white mb-2'>Tasks</h2>
+                                {tasks.length > 0 ? (
+                                    tasks.map((task) => (
+                                        <div key={task.id} className='flex flex-row bg-slate-800 rounded-md p-3 mb-2 w-[95%] mx-auto'>
+                                            <div className='flex flex-col w-[60%]'>
+                                                <h3 className={`text-white font-medium ${task.is_done ? 'line-through' : ''}`}>
+                                                    {task.description}
+                                                </h3>
+                                                <p className='text-sm text-gray-400'>Assigned to: {task.assigned_to}</p>
+                                                <p className='text-sm text-gray-400'>Due date: {task.due_date}</p>
+                                            </div>
+                                            <div className='flex flex-col w-[40%] justify-center items-end gap-2'>
+                                                <span className={`text-white px-3 py-1 rounded
+                                                                ${task.complexity === 'Low' ? 'bg-green-600' : 
+                                                                  task.complexity === 'Medium' ? 'bg-yellow-600' : 
+                                                                  'bg-red-600'}`}>
+                                                    {task.complexity}
+                                                </span>
+                                                {!task.is_done && (
+                                                    <button
+                                                        onClick={() => markTaskAsDone(task.id)}
+                                                        className='bg-green-600 text-white rounded-md p-1 hover:bg-green-700'
+                                                        disabled={isLoading}
+                                                    >
+                                                        <CheckCircle className="w-5 h-5" />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p className='text-gray-400 text-center'>No tasks available</p>
+                                )}
+                            </div>
                         </div>
                     )}
-
                     {activePanel === 'GroupChat' && (
-                        <div className='w-full h-[10rem] bg-blue-600'>
-                            <h1>Group Chat</h1>
+                        <div className='flex flex-col w-full h-[30rem] bg-blue-950 rounded-md p-4'>
+                            <h1 className='text-xl text-white mb-4'>Group Chat</h1>
+                            <div className='flex flex-col h-[80%] bg-slate-800 rounded-md p-4 overflow-y-auto'>
+                                {messages.length > 0 ? (
+                                    messages.map((message) => (
+                                        <div key={message.id} className='mb-2'>
+                                            <div className='text-sm text-gray-400'>
+                                                {message.sender} - {new Date(message.timestamp).toLocaleTimeString()}
+                                            </div>
+                                            <div className='text-white bg-blue-600 rounded-md p-2 inline-block'>
+                                                {message.content}
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p className='text-gray-400 text-center'>No messages yet</p>
+                                )}
+                            </div>
+                            <div className='flex mt-4'>
+                                <input
+                                    type='text'
+                                    value={newMessage}
+                                    onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                                    placeholder='Type your message...'
+                                    className='flex-grow bg-gray-700 text-white rounded-l-md p-2'
+                                    disabled={isLoading}
+                                />
+                                <button
+                                    className={`bg-blue-600 text-white rounded-r-md px-4
+                                                ${isLoading 
+                                                    ? 'bg-gray-400 cursor-not-allowed' 
+                                                    : 'hover:bg-blue-700'
+                                                }`}
+                                    disabled={isLoading}
+                                >
+                                    Send
+                                </button>
+                            </div>
                         </div>
                     )}
                 </div>
