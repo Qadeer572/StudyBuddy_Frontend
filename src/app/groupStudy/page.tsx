@@ -18,7 +18,7 @@ export default function GroupStudyPage() {
     const [activePanel, setActivePanel] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     
-    const API_BASE = 'http://127.0.0.1:8000/groupStudy/';
+    const API_BASE = 'https://studybuddys-454c3f01f785.herokuapp.com/groupStudy/';
 
     type Group = {
         id: number,
