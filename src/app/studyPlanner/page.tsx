@@ -1,7 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-
 export default function StudyPlanner() {
   const [activeForm, setActiveForm] = useState<'form1' | 'form2' | null>('form1');
   const router = useRouter();
