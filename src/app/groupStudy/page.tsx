@@ -277,7 +277,7 @@ export default function GroupStudyPage() {
             },
             credentials: 'include',
           }),
-          fetch(`http://127.0.0.1:8000/groupStudy/getStudyPlanner/`, {
+          fetch(`${API_BASE}/getStudyPlanner/`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
