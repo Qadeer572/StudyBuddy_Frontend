@@ -4,9 +4,9 @@ import Modal from '@/components/Modal';
 import { Book, PlusCircle, Plus, UserCheck, CheckCircle } from 'lucide-react';
 
 // Debounce utility
-const debounce = (func: (...args: any[]) => void, wait: number) => {
+const debounce = (func: (...args: unknown[]) => void, wait: number) => {
   let timeout: NodeJS.Timeout;
-  return (...args: any[]) => {
+  return (...args: Parameters<typeof func>) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => func(...args), wait);
   };
@@ -113,10 +113,10 @@ export default function GroupStudyPage() {
 
   // Debounced topic fetching
   const debouncedGetSharedStudyPlanner = useCallback(
-    debounce(async (groupId: number | null) => {
+    debounce(((groupId: number | null) => {
       if (!groupId) return;
-      await getSharedStudyPlanner();
-    }, 500),
+      getSharedStudyPlanner();
+    }) as (...args: unknown[]) => void, 500),
     []
   );
 
