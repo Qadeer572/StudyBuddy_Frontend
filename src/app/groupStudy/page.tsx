@@ -20,8 +20,8 @@ export default function GroupStudyPage() {
   const [activePanel, setActivePanel] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const API_BASE = 'https://studybuddys-454c3f01f785.herokuapp.com/groupStudy/';
-  // const API_BASE = 'http://127.0.0.1:8000/groupStudy/';
+  //const API_BASE = 'https://studybuddys-454c3f01f785.herokuapp.com/groupStudy/';
+  const API_BASE = 'http://127.0.0.1:8000/groupStudy/';
 
   type Group = {
     id: number;
@@ -143,7 +143,7 @@ export default function GroupStudyPage() {
       setTopics([...topics, newTopicObj]);
 
       // Send to backend
-      const res = await fetch('${API_BASE}addStudyPlanner/', {
+      const res = await fetch('${API_BASE}', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -277,7 +277,7 @@ export default function GroupStudyPage() {
             },
             credentials: 'include',
           }),
-          fetch(`${API_BASE}/getStudyPlanner/`, {
+          fetch(`${API_BASE}getStudyPlanner/`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
