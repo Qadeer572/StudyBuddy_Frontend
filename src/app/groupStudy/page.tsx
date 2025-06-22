@@ -141,7 +141,7 @@ export default function GroupStudyPage() {
         group_id: activeCard,
       };
       setTopics([...topics, newTopicObj]);
-
+      // helo world
       // Send to backend
       const res = await fetch('https://studybuddys-454c3f01f785.herokuapp.com/groupStudy/addStudyPlanner/', {
         method: 'POST',
