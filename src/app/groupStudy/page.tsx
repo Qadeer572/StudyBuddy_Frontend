@@ -26,8 +26,8 @@ export default function GroupStudyPage() {
   }
    
   const [users, setUsers] = useState<user[]>([]); // State to hold group users
-  //const API_BASE = 'https://studybuddys-454c3f01f785.herokuapp.com/groupStudy/';
-  const API_BASE = 'http://127.0.0.1:8000/groupStudy/';
+  const API_BASE = 'https://studybuddys-454c3f01f785.herokuapp.com/groupStudy/';
+  //const API_BASE = 'http://127.0.0.1:8000/groupStudy/';
 
   type Group = {
     id: number;
