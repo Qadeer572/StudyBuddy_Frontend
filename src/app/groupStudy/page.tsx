@@ -152,7 +152,7 @@ export default function GroupStudyPage() {
 
       const data = await res.json();
       if (data.status) {
-        const tasksData = Array.isArray(data.data.username) ? data.data.username : [];
+        const tasksData = Array.isArray(data.data) ? data.data : [];
         console.log('Fetched tasks:', tasksData);
         setTasks(tasksData);
         console.log('Stored Data :')
@@ -377,6 +377,7 @@ export default function GroupStudyPage() {
           setGroups(groupsArray);
           if (groupsArray.length > 0 && activeCard === null) {
             setActiveCard(groupsArray[0].id);
+            
           }
         } else {
           console.error('API Error (groups):', groupsData.message || 'Unknown error');
@@ -401,6 +402,9 @@ export default function GroupStudyPage() {
 
     fetchInitialData();
     getGroupTask();
+
+     
+    
   }, []);
 
   // Fetch topics when activeCard changes
