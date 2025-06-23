@@ -59,6 +59,7 @@ export default function StudyPlanner() {
     }
   };
 
+  
   const getAllTopics = async () => {
     try {
       const res = await fetch(`${API_BASE}allTopics/`, {

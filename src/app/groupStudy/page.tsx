@@ -19,7 +19,13 @@ export default function GroupStudyPage() {
   const [inviteCode, setInviteCode] = useState('');
   const [activePanel, setActivePanel] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
+  
+  type user = {
+    id :number,
+    username: string
+  }
+   
+  const [users, setUsers] = useState<user[]>([]); // State to hold group users
   const API_BASE = 'https://studybuddys-454c3f01f785.herokuapp.com/groupStudy/';
   //const API_BASE = 'http://127.0.0.1:8000/groupStudy/';
 
@@ -50,7 +56,7 @@ export default function GroupStudyPage() {
 
   type Task = {
     id: number;
-    description: string;
+    task_name: string;
     assigned_to: string;
     due_date: string;
     complexity: 'Low' | 'Medium' | 'High';
@@ -64,8 +70,8 @@ export default function GroupStudyPage() {
   const [newMessage, setNewMessage] = useState('');
   const [topics, setTopics] = useState<Topic[]>([]);
   const [tasks, setTasks] = useState<Task[]>([
-    { id: 1, description: 'Complete calculus homework', assigned_to: 'John Doe', due_date: '2025-06-20', complexity: 'Medium', is_done: false, group_id: 11 },
-    { id: 2, description: 'Prepare physics presentation', assigned_to: 'Jane Smith', due_date: '2025-06-22', complexity: 'High', is_done: false, group_id: 13 },
+    { id: 1, task_name: 'Complete calculus homework', assigned_to: 'John Doe', due_date: '2025-06-20', complexity: 'Medium', is_done: false, group_id: 11 },
+    { id: 2, task_name: 'Prepare physics presentation', assigned_to: 'Jane Smith', due_date: '2025-06-22', complexity: 'High', is_done: false, group_id: 13 },
   ]);
   const [newTask, setNewTask] = useState({
     description: '',
@@ -84,7 +90,81 @@ export default function GroupStudyPage() {
   const updateTopicStatus = (topicId: number, newStatus: 'Not Started' | 'In Progress' | 'Completed') => {
     setTopics(topics.map(topic => (topic.id === topicId ? { ...topic, status: newStatus } : topic)));
   };
+  
+  const getGroupUser = async () => {
+    const res= await fetch(`${API_BASE}getGroupUser/`, {
+      method: 'POST',  
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Token ${localStorage.getItem('token')}`,
+      },
+      body: JSON.stringify({ group_id: activeCard }),
+      credentials: 'include',
+    })
 
+    const data = await res.json();
+    
+    if(data.status){
+      const usersData = Array.isArray(data.data) ? data.data : [];
+      setUsers(usersData);
+      console.log(usersData)
+    }
+    else{
+      alert("Failed to Fetch Group User");
+    }
+  }
+  const addGroupTask=async () =>{
+    const res= await fetch(`${API_BASE}addGroupTask/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Token ${localStorage.getItem('token')}`,
+      },
+      body: JSON.stringify({
+        task_name: newTask.description,
+        assigned_to: newTask.assigned_to,
+        due_date: newTask.due_date,
+        complexity: newTask.complexity,
+        group_id: activeCard,
+      }),
+      credentials: 'include',
+    })
+
+    const data= await res.json();
+
+    if(data.status){
+      //
+    }
+    else{
+      alert(data.message);
+    }
+  }
+  const getGroupTask = async () => {
+    try {
+      const res = await fetch(`${API_BASE}getGroupTask/`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Token ${localStorage.getItem('token')}`,
+        },
+        credentials: 'include',
+      });
+
+      const data = await res.json();
+      if (data.status) {
+        const tasksData = Array.isArray(data.data.username) ? data.data.username : [];
+        console.log('Fetched tasks:', tasksData);
+        setTasks(tasksData);
+        console.log('Stored Data :')
+      } else {
+        console.error('API Error:', data.message || 'Unknown error');
+        alert('Failed to load the Group Tasks');
+      }
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+      alert('An error occurred while loading tasks');
+    }
+  }
   // Fetch shared study planner
   const getSharedStudyPlanner = async () => {
     try {
@@ -191,7 +271,7 @@ export default function GroupStudyPage() {
     }
     const newTaskObj: Task = {
       id: tasks.length + 1,
-      description: newTask.description,
+      task_name: newTask.description,
       assigned_to: newTask.assigned_to,
       due_date: newTask.due_date,
       complexity: newTask.complexity,
@@ -200,6 +280,8 @@ export default function GroupStudyPage() {
     };
     setTasks([...tasks, newTaskObj]);
     setNewTask({ description: '', assigned_to: '', due_date: '', complexity: 'Low', group_id: null });
+
+    addGroupTask();
   };
 
   // Add new message
@@ -318,6 +400,7 @@ export default function GroupStudyPage() {
     };
 
     fetchInitialData();
+    getGroupTask();
   }, []);
 
   // Fetch topics when activeCard changes
@@ -414,10 +497,13 @@ export default function GroupStudyPage() {
     }
     return null;
   };
-
+  const groupHanler = ({ group_id }: { group_id: number }) => {
+    setActiveCard(group_id);
+    getGroupUser();
+  }
   const GroupCard = ({ groupId, title, totalMembers, totalTopics }: { groupId: number; title: string; totalMembers: number; totalTopics: number }) => (
     <div
-      onClick={() => setActiveCard(groupId)}
+      onClick={() => groupHanler({ group_id: groupId })}
       className="cursor-pointer flex flex-col outline-black/5 dark:bg-slate-800 dark:shadow-none dark:-outline-offset-1 dark:outline-white/10 w-[95%] lg:w-[90%] h-[7rem] rounded-md mx-auto mb-2 p-4"
       key={groupId}
     >
@@ -702,7 +788,7 @@ export default function GroupStudyPage() {
               <div className="flex flex-col bg-slate-800 rounded-md p-4 mb-4">
                 <h2 className="text-lg text-white mb-2">Add New Task</h2>
                 <div className="flex flex-col gap-2 lg:gap-4">
-                  <div className="flex flex-col lg:flex-row gap-2 lg:gap-4">
+                    <div className="flex flex-col lg:flex-row gap-2 lg:gap-4">
                     <input
                       type="text"
                       value={newTask.description}
@@ -711,15 +797,22 @@ export default function GroupStudyPage() {
                       className="bg-gray-700 text-white rounded-md p-2 lg:flex-1"
                       disabled={isLoading || !activeCard}
                     />
-                    <input
-                      type="text"
+                    <select
                       value={newTask.assigned_to}
                       onChange={e => setNewTask({ ...newTask, assigned_to: e.target.value })}
-                      placeholder="Assigned to"
                       className="bg-gray-700 text-white rounded-md p-2 lg:flex-1"
                       disabled={isLoading || !activeCard}
-                    />
-                  </div>
+                    >
+                      <option value="" disabled>
+                      Select user
+                      </option>
+                        {users.map((user: user, index: number) => (
+                        <option key={index} value={user.username}>
+                        {user.username}
+                        </option>
+                        ))}
+                    </select>
+                    </div>
                   <div className="flex flex-col lg:flex-row gap-2 lg:gap-4">
                     <input
                       type="date"
@@ -782,7 +875,7 @@ export default function GroupStudyPage() {
                     .map(task => (
                       <div key={task.id} className="flex flex-row bg-slate-800 rounded-md p-3 mb-2 w-[95%] mx-auto">
                         <div className="flex flex-col w-[60%]">
-                          <h3 className={`text-white font-medium ${task.is_done ? 'line-through' : ''}`}>{task.description}</h3>
+                          <h3 className={`text-white font-medium ${task.is_done ? 'line-through' : ''}`}>{task.task_name}</h3>
                           <p className="text-sm text-gray-400">Assigned to: {task.assigned_to}</p>
                           <p className="text-sm text-gray-400">Due date: {task.due_date}</p>
                         </div>
