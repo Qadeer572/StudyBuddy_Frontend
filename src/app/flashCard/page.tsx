@@ -227,7 +227,7 @@ const Tabs = ({ children, defaultValue, className }: {
     <div className={className}>
       {React.Children.map(children, child => 
         React.isValidElement(child) 
-          ? React.cloneElement(child, { activeTab, setActiveTab } as any)
+          ? React.cloneElement(child, { activeTab, setActiveTab } as Partial<{ activeTab: string; setActiveTab: (value: string) => void }>)
           : child
       )}
     </div>
@@ -482,7 +482,20 @@ const CreateDeckDialog = ({ open, onOpenChange }: {
 };
 
 // Flashcard Review Component
-const FlashcardReview = ({ deck, onBack }: { deck: any; onBack: () => void }) => {
+interface Deck {
+  id: string;
+  name: string;
+  subject: string;
+  cardCount: number;
+  dueCards: number;
+  mastered: number;
+  learning: number;
+  lastStudied: string;
+  difficulty: string;
+  shared: boolean;
+}
+
+const FlashcardReview = ({ deck, onBack }: { deck: Deck; onBack: () => void }) => {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const [sessionStats, setSessionStats] = useState({ correct: 0, incorrect: 0, again: 0 });
@@ -648,7 +661,7 @@ const FlashcardReview = ({ deck, onBack }: { deck: any; onBack: () => void }) =>
 };
 
 // Quiz Mode Component
-const QuizMode = ({ deck, onBack }: { deck: any; onBack: () => void }) => {
+const QuizMode = ({ deck, onBack }: { deck: Deck; onBack: () => void }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
@@ -930,17 +943,17 @@ const StudyStats = () => {
 
 // Main Flashcard Application Component
 const CompleteFlashcardApp = () => {
-  const [selectedDeck, setSelectedDeck] = useState(null);
+  const [selectedDeck, setSelectedDeck] = useState<Deck | null>(null);
   const [activeMode, setActiveMode] = useState("overview");
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const { toast, toasts } = useToast();
+  const { toasts } = useToast();
 
-  const handleStartReview = (deck: any) => {
+  const handleStartReview = (deck: Deck) => {
     setSelectedDeck(deck);
     setActiveMode("review");
   };
 
-  const handleStartQuiz = (deck: any) => {
+  const handleStartQuiz = (deck: Deck) => {
     setSelectedDeck(deck);
     setActiveMode("quiz");
   };
