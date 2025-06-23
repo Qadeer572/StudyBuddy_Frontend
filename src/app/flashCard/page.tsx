@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, Plus, Brain, Play, BarChart3, Clock, ArrowLeft, RotateCcw, Eye, EyeOff, CheckCircle, XCircle, AlertCircle, BookOpen } from 'lucide-react';
+import { Plus, Brain, Play, BarChart3, Clock, ArrowLeft, RotateCcw, Eye, EyeOff, CheckCircle, XCircle, AlertCircle, BookOpen } from 'lucide-react';
 
 // Utility function for class names
 const cn = (...classes: (string | undefined | null | false)[]): string => {
