@@ -7,7 +7,7 @@ const cn = (...classes: (string | undefined | null | false)[]): string => {
   return classes.filter(Boolean).join(' ');
 };
 
-// UI Components defined in the same file
+// UI Components
 const Button = React.forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -42,7 +42,6 @@ const Button = React.forwardRef<
     />
   );
 });
-
 Button.displayName = "Button";
 
 const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
@@ -54,7 +53,6 @@ const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElemen
     />
   )
 );
-
 Card.displayName = "Card";
 
 const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
@@ -95,7 +93,6 @@ const CardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDi
     <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
   )
 );
-
 CardContent.displayName = "CardContent";
 
 const Badge = ({ className, variant = 'default', ...props }: React.HTMLAttributes<HTMLDivElement> & {
@@ -121,19 +118,17 @@ const Badge = ({ className, variant = 'default', ...props }: React.HTMLAttribute
 };
 
 const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
-  ({ className, type, ...props }, ref) => {
-    return (
-      <input
-        type={type}
-        className={cn(
-          "flex h-16 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-gray focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500 md:text-sm",
-          className
-        )}
-        ref={ref}
-        {...props}
-      />
-    )
-  }
+  ({ className, type, ...props }, ref) => (
+    <input
+      type={type}
+      className={cn(
+        "flex h-16 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-gray focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500 md:text-sm",
+        className
+      )}
+      ref={ref}
+      {...props}
+    />
+  )
 );
 Input.displayName = "Input";
 
@@ -149,18 +144,16 @@ const Label = React.forwardRef<HTMLLabelElement, React.LabelHTMLAttributes<HTMLL
 Label.displayName = "Label";
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(
-  ({ className, ...props }, ref) => {
-    return (
-      <textarea
-        className={cn(
-          "flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-gray focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500",
-          className
-        )}
-        ref={ref}
-        {...props}
-      />
-    )
-  }
+  ({ className, ...props }, ref) => (
+    <textarea
+      className={cn(
+        "flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-gray focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500",
+        className
+      )}
+      ref={ref}
+      {...props}
+    />
+  )
 );
 Textarea.displayName = "Textarea";
 
@@ -284,59 +277,29 @@ const TabsContent = ({ value, children, activeTab, className }: {
   );
 };
 
-// Mock data
+// Types
 type deck = {
-  id: number,
-  name: string,
-  subject: string,
-  is_shared: boolean,
-  cardCount: number,
-  dueCards: number,
-  mastered: number,
-  learning: number,
-  lastStudied: string,
-  created_at: Date
-}
+  id: number;
+  name: string;
+  subject: string;
+  is_shared: boolean;
+  cardCount: number;
+  dueCards: number;
+  mastered: number;
+  learning: number;
+  lastStudied: string;
+  created_at: Date;
+};
 
-type flashCard={
-  id: number,
-  deck_id: number,
-  question: string,
-  difficulty: "Medium"
-}
-/*type answer={
-  id: number,
-  card_id: number,
-  answer: string,
-  explanation: string,
-}*/
-
-const mockFlashcards = [
-  {
-    id: "1",
-    front: "What is the derivative of sin(x)?",
-    back: "cos(x)",
-    difficulty: "Medium",
-    dueDate: "2024-06-20",
-    interval: 3
-  },
-  {
-    id: "2",
-    front: "Define the limit of a function",
-    back: "The limit of a function f(x) as x approaches a is the value that f(x) gets arbitrarily close to as x gets arbitrarily close to a, but not necessarily equal to a.",
-    difficulty: "Hard",
-    dueDate: "2024-06-20",
-    interval: 1
-  },
-  {
-    id: "3",
-    front: "What is the integral of 1/x?",
-    back: "ln|x| + C",
-    difficulty: "Easy",
-    dueDate: "2024-06-20",
-    interval: 7
-  }
-];
+type flashCard = {
+  id: string;
+  deck_id: number;
+  question: string;
+  back: string;
+  difficulty: "Easy" | "Medium" | "Hard";
+  dueDate: string;
+  interval: number;
+};
 
 const mockQuizQuestions = [
   {
@@ -344,14 +307,14 @@ const mockQuizQuestions = [
     question: "What is the derivative of sin(x)?",
     options: ["cos(x)", "-cos(x)", "sin(x)", "-sin(x)"],
     correctAnswer: 0,
-    explanation: "The derivative of sin(x) is cos(x) by the basic differentiation rules."
+    explanation: "The derivative of sin(x) is cos(x) by the basic differentiation rules.",
   },
   {
     id: "2",
     question: "What is the integral of 1/x?",
     options: ["x²/2", "ln|x| + C", "1/x²", "e^x"],
     correctAnswer: 1,
-    explanation: "The integral of 1/x is ln|x| + C, where C is the constant of integration."
+    explanation: "The integral of 1/x is ln|x| + C, where C is the constant of integration.",
   },
   {
     id: "3",
@@ -360,11 +323,11 @@ const mockQuizQuestions = [
       "Limits always equal the function value at that point",
       "Limits describe the behavior of a function as it approaches a value",
       "Limits can only be calculated for continuous functions",
-      "Limits are always infinity"
+      "Limits are always infinity",
     ],
     correctAnswer: 1,
-    explanation: "Limits describe the behavior of a function as the input approaches a particular value, regardless of whether the function is defined at that point."
-  }
+    explanation: "Limits describe the behavior of a function as the input approaches a particular value, regardless of whether the function is defined at that point.",
+  },
 ];
 
 // Toast functionality
@@ -418,13 +381,13 @@ const CreateDeckDialog = ({ open, onOpenChange, subjects, onDeckCreated }: {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Token ${localStorage.getItem('token')}`
+            Authorization: `Token ${localStorage.getItem('token')}`,
           },
           body: JSON.stringify({
             subject: subject,
-            name: deckName
+            name: deckName,
           }),
-          credentials: 'include'
+          credentials: 'include',
         });
 
         const data = await res.json();
@@ -437,7 +400,7 @@ const CreateDeckDialog = ({ open, onOpenChange, subjects, onDeckCreated }: {
           setDeckName("");
           setSubject("");
           setDescription("");
-          onDeckCreated(); // Trigger deck list refresh
+          onDeckCreated();
           onOpenChange(false);
         } else {
           throw new Error(data.message || "Failed to create deck");
@@ -517,40 +480,56 @@ const CreateDeckDialog = ({ open, onOpenChange, subjects, onDeckCreated }: {
   );
 };
 
+// Flashcard Review Component
 const FlashcardReview = ({ deck, onBack }: { deck: deck; onBack: () => void }) => {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
-  const [flashCards,setFlashCards] = useState<flashCard[]>([]);
+  const [flashCards, setFlashCards] = useState<flashCard[]>([]);
   const [showAnswer, setShowAnswer] = useState(false);
   const [sessionStats, setSessionStats] = useState({ correct: 0, incorrect: 0, again: 0 });
   const { toast } = useToast();
-  const [thisCards, setThisCards] = useState<flashCard[]>(flashCards.filter(card => card.deck_id === Number(deck.id)));
-  //const currentCard = thisCards[currentCardIndex];
-  const isLastCard = currentCardIndex === thisCards.length - 1;
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    getFlashCards()
-  },[showAnswer]);
-  const getFlashCards = async () => {
-    const res= await fetch('',{
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Token ${localStorage.getItem('token')}`
-      },
-      credentials: 'include'
-    });
+    const fetchFlashcards = async () => {
+      setIsLoading(true);
+      try {
+        const res = await fetch(`http://127.0.0.1:8000/flashcard/getflashCards/`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Token ${localStorage.getItem('token')}`,
+          },
+          credentials: 'include',
+        });
+        const data = await res.json();
+        if (data.status) {
+          // Filter flashcards by deck_id client-side
+          const filteredCards = data.flashcards.filter((card: flashCard) => card.deck_id === deck.id);
+          setFlashCards(filteredCards);
+        } else {
+          toast({
+            title: "Error",
+            description: "Failed to load flashcards",
+          });
+          setFlashCards([]);
+        }
+      } catch {
+        toast({
+          title: "Error",
+          description: "Failed to load flashcards",
+        });
+        setFlashCards([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchFlashcards();
+   
+  }, [deck.id]);
 
-    const data = await res.json();
-    if (data.status) {
-      setFlashCards(data.flashcards);
-      setThisCards(flashCards.filter(card => card.deck_id === Number(deck.id)));
-    } else {
-      toast({
-        title: "Error Fetching Cards",
-        description: "Please try again later.",
-      });
-    }
-  }
+  const currentCard = flashCards[currentCardIndex];
+  const isLastCard = currentCardIndex === flashCards.length - 1;
+
   const handleCardResponse = (response: "again" | "hard" | "good" | "easy") => {
     const newStats = { ...sessionStats };
     
@@ -563,7 +542,7 @@ const FlashcardReview = ({ deck, onBack }: { deck: deck; onBack: () => void }) =
     }
     
     setSessionStats(newStats);
-
+    updateStatusCard();
     if (isLastCard) {
       toast({
         title: "Review Session Complete!",
@@ -576,6 +555,39 @@ const FlashcardReview = ({ deck, onBack }: { deck: deck; onBack: () => void }) =
     }
   };
 
+  const updateStatusCard = async () =>{
+    const mastered=sessionStats.correct+1;
+    const learning=sessionStats.incorrect + sessionStats.again + sessionStats.correct+1;
+    const dueCards=10-learning;
+    const sucess_rate= Math.round((mastered /learning) * 100);
+    const res= await fetch('http://127.0.0.1:8000/flashcard/updatStatusCard/',{
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Token ${localStorage.getItem('token')}`,
+      },
+      
+      body: JSON.stringify({
+        deck_id: deck.id,
+        mastered: mastered,
+        learning: learning,
+        dueCards: dueCards,
+        sucess_rate: sucess_rate
+      }),
+      credentials: 'include',
+    });
+
+    const data= await res.json();
+    if(data.status){
+      //
+    }
+    else{
+      toast({
+        title: "Error",
+        description: "Failed to update deck status",
+      });
+    }
+  }
   const flipCard = () => {
     setShowAnswer(!showAnswer);
   };
@@ -583,6 +595,30 @@ const FlashcardReview = ({ deck, onBack }: { deck: deck; onBack: () => void }) =
   const resetCard = () => {
     setShowAnswer(false);
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900">
+        <div className="container mx-auto p-6">
+          <p className="text-white text-center">Loading flashcards...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (flashCards.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900">
+        <div className="container mx-auto p-6">
+          <Button onClick={onBack} variant="outline" className="mb-4">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Decks
+          </Button>
+          <p className="text-white text-center">No flashcards available for this deck.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900">
@@ -596,7 +632,7 @@ const FlashcardReview = ({ deck, onBack }: { deck: deck; onBack: () => void }) =
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-bold text-white">{deck.name}</h1>
-              <p className="text-white">Card {currentCardIndex + 1} of {thisCards.length}</p>
+              <p className="text-white">Card {currentCardIndex + 1} of {flashCards.length}</p>
             </div>
             <div className="flex gap-4 text-sm">
               <div className="text-center">
@@ -617,7 +653,7 @@ const FlashcardReview = ({ deck, onBack }: { deck: deck; onBack: () => void }) =
           <div className="w-full bg-white rounded-full h-2 mt-4">
             <div 
               className="bg-purple-600 h-2 rounded-full transition-all duration-300" 
-              style={{ width: `${((currentCardIndex + 1) / mockFlashcards.length) * 100}%` }}
+              style={{ width: `${((currentCardIndex + 1) / flashCards.length) * 100}%` }}
             ></div>
           </div>
         </div>
@@ -626,8 +662,8 @@ const FlashcardReview = ({ deck, onBack }: { deck: deck; onBack: () => void }) =
           <Card className="h-96 cursor-pointer" onClick={flipCard}>
             <CardHeader>
               <div className="flex justify-between items-center">
-                <Badge variant='secondary'>
-                  {/*{currentCard.difficulty}*/}
+                <Badge variant="secondary">
+                  {currentCard.difficulty}
                 </Badge>
                 <div className="flex gap-2">
                   <Button
@@ -652,13 +688,13 @@ const FlashcardReview = ({ deck, onBack }: { deck: deck; onBack: () => void }) =
                 {!showAnswer ? (
                   <div>
                     <h2 className="text-xl font-semibold mb-4">Question</h2>
-                    <p className="text-lg"></p>
+                    <p className="text-lg">{currentCard.question}</p>
                     <p className="text-sm text-white mt-4">Click to reveal answer</p>
                   </div>
                 ) : (
                   <div>
                     <h2 className="text-xl font-semibold mb-4 text-green-600">Answer</h2>
-                    <p className="text-lg"></p>
+                    <p className="text-lg">{currentCard.question}</p>
                   </div>
                 )}
               </div>
@@ -719,6 +755,15 @@ const QuizMode = ({ deck, onBack }: { deck: deck; onBack: () => void }) => {
   const currentQuestion = mockQuizQuestions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === mockQuizQuestions.length - 1;
 
+  const handleQuizComplete = () => {
+    setQuizCompleted(true);
+    const percentage = Math.round((score / mockQuizQuestions.length) * 100);
+    toast({
+      title: "Quiz Complete!",
+      description: `You scored ${score}/${mockQuizQuestions.length} (${percentage}%)`,
+    });
+  };
+
   useEffect(() => {
     if (timeLeft > 0 && !quizCompleted) {
       const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
@@ -758,15 +803,6 @@ const QuizMode = ({ deck, onBack }: { deck: deck; onBack: () => void }) => {
       setSelectedAnswer(null);
       setShowResult(false);
     }
-  };
-
-  const handleQuizComplete = () => {
-    setQuizCompleted(true);
-    const percentage = Math.round((score / mockQuizQuestions.length) * 100);
-    toast({
-      title: "Quiz Complete!",
-      description: `You scored ${score}/${mockQuizQuestions.length} (${percentage}%)`,
-    });
   };
 
   if (quizCompleted) {
@@ -846,6 +882,7 @@ const QuizMode = ({ deck, onBack }: { deck: deck; onBack: () => void }) => {
                 {formatTime(timeLeft)}
               </span>
             </div>
+
           </div>
 
           <div className="w-full bg-white rounded-full h-2 mt-4">
@@ -948,7 +985,7 @@ const StudyStats = () => {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-purple-600">45</div>
-            <p className="text-sm text-gray-600">Cards reviewed</p>
+            <p className="text-sm text-gray-500">Cards reviewed</p>
           </CardContent>
         </Card>
         
@@ -958,7 +995,7 @@ const StudyStats = () => {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-green-600">12</div>
-            <p className="text-sm text-gray-600">Days in a row</p>
+            <p className="text-sm text-gray-500">Days in a row</p>
           </CardContent>
         </Card>
         
@@ -968,7 +1005,7 @@ const StudyStats = () => {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-blue-600">2.5h</div>
-            <p className="text-sm text-gray-600">This week</p>
+            <p className="text-sm text-gray-500">This week</p>
           </CardContent>
         </Card>
       </div>
@@ -990,87 +1027,85 @@ const StudyStats = () => {
 // Main Flashcard Application Component
 const CompleteFlashcardApp = () => {
   const [selectedDeck, setSelectedDeck] = useState<deck | null>(null);
-  const [activeMode, setActiveMode] = useState("overview");
+  const [activeMode, setActiveMode] = useState<"overview" | "review" | "quiz">("overview");
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const { toast, toasts } = useToast();
   const [decks, setDecks] = useState<deck[]>([]);
- 
-  //const [answers, setAnswers] = useState<answer[]>([]);
   const [refresh, setRefresh] = useState(false);
 
   type Subjects = {
-    id: number,
-    name: string,
-    description: string
-  }
+    id: number;
+    name: string;
+    description: string;
+  };
 
   const [subjects, setSubjects] = useState<Subjects[]>([]);
 
   useEffect(() => {
-    getSubjects();
-    getDecks();
-  }, [refresh]);
+    const getSubjects = async () => {
+      try {
+        const res = await fetch('http://127.0.0.1:8000/studyplanner/allSubjects/', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Token ${localStorage.getItem('token')}`,
+          },
+          credentials: 'include',
+        });
 
-  const getSubjects = async () => {
-    try {
-      const res = await fetch('http://127.0.0.1:8000/studyplanner/allSubjects/', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Token ${localStorage.getItem('token')}`
-        },
-        credentials: 'include'
-      });
-
-      const data = await res.json();
-      if (data.status) {
-        setSubjects(data.subjects);
-      } else {
+        const data = await res.json();
+        if (data.status) {
+          setSubjects(data.subjects);
+        } else {
+          toast({
+            title: "Error",
+            description: "Failed to load subjects",
+          });
+        }
+      } catch {
         toast({
           title: "Error",
           description: "Failed to load subjects",
         });
       }
-    } catch  {
-      toast({
-        title: "Error",
-        description: "Failed to load subjects",
-      });
-    }
-  };
+    };
 
-  const getDecks = async () => {
-    try {
-      const res = await fetch('http://127.0.0.1:8000/flashcard/getDecks/', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Token ${localStorage.getItem('token')}`
-        },
-        credentials: 'include'
-      });
+    const getDecks = async () => {
+      try {
+        const res = await fetch('http://127.0.0.1:8000/flashcard/getDecks/', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Token ${localStorage.getItem('token')}`,
+          },
+          credentials: 'include',
+        });
 
-      const data = await res.json();
-      if (data.status) {
-        setDecks(data.decks);
-      } else {
+        const data = await res.json();
+        if (data.status) {
+          setDecks(data.decks);
+        } else {
+          toast({
+            title: "Error",
+            description: "Failed to load decks",
+          });
+        }
+      } catch {
         toast({
           title: "Error",
           description: "Failed to load decks",
         });
       }
-    } catch  {
-      toast({
-        title: "Error",
-        description: "Failed to load decks",
-      });
-    }
-  };
+    };
+
+    getSubjects();
+    getDecks();
+  }, [refresh]);
 
   const handleDeckCreated = () => {
-    setRefresh(prev => !prev); // Toggle refresh to trigger useEffect
+    setRefresh(prev => !prev);
   };
-   
+
   const handleStartReview = (deck: deck) => {
     setSelectedDeck(deck);
     setActiveMode("review");
@@ -1081,12 +1116,17 @@ const CompleteFlashcardApp = () => {
     setActiveMode("quiz");
   };
 
+  const handleBackToOverview = () => {
+    setSelectedDeck(null);
+    setActiveMode("overview");
+  };
+
   if (activeMode === "review" && selectedDeck) {
-    return <FlashcardReview deck={selectedDeck} onBack={() => setActiveMode("overview")} />;
+    return <FlashcardReview deck={selectedDeck} onBack={handleBackToOverview} />;
   }
-  
+
   if (activeMode === "quiz" && selectedDeck) {
-    return <QuizMode deck={selectedDeck} onBack={() => setActiveMode("overview")} />;
+    return <QuizMode deck={selectedDeck} onBack={handleBackToOverview} />;
   }
 
   return (
