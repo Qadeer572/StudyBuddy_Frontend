@@ -377,7 +377,7 @@ const CreateDeckDialog = ({ open, onOpenChange, subjects, onDeckCreated }: {
     if (deckName.trim() && subject.trim()) {
       setLoading(true);
       try {
-        const res = await fetch('http://127.0.0.1:8000/flashcard/addCardDeck/', {
+        const res = await fetch('https://studybuddys-454c3f01f785.herokuapp.com/flashcard/addCardDeck/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -493,7 +493,7 @@ const FlashcardReview = ({ deck, onBack }: { deck: deck; onBack: () => void }) =
     const fetchFlashcards = async () => {
       setIsLoading(true);
       try {
-        const res = await fetch(`http://127.0.0.1:8000/flashcard/getflashCards/`, {
+        const res = await fetch(`https://studybuddys-454c3f01f785.herokuapp.com/flashcard/getflashCards/`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -560,7 +560,7 @@ const FlashcardReview = ({ deck, onBack }: { deck: deck; onBack: () => void }) =
     const learning=sessionStats.incorrect + sessionStats.again + sessionStats.correct+1;
     const dueCards=10-learning;
     const sucess_rate= Math.round((mastered /learning) * 100);
-    const res= await fetch('http://127.0.0.1:8000/flashcard/updatStatusCard/',{
+    const res= await fetch('https://studybuddys-454c3f01f785.herokuapp.com/flashcard/updatStatusCard/',{
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1044,7 +1044,7 @@ const CompleteFlashcardApp = () => {
   useEffect(() => {
     const getSubjects = async () => {
       try {
-        const res = await fetch('http://127.0.0.1:8000/studyplanner/allSubjects/', {
+        const res = await fetch('https://studybuddys-454c3f01f785.herokuapp.com/studyplanner/allSubjects/', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -1072,7 +1072,7 @@ const CompleteFlashcardApp = () => {
 
     const getDecks = async () => {
       try {
-        const res = await fetch('http://127.0.0.1:8000/flashcard/getDecks/', {
+        const res = await fetch('https://studybuddys-454c3f01f785.herokuapp.com/flashcard/getDecks/', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
