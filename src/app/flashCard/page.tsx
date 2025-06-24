@@ -102,7 +102,7 @@ const Badge = ({ className, variant = 'default', ...props }: React.HTMLAttribute
   variant?: 'default' | 'secondary' | 'destructive' | 'outline';
 }) => {
   const variants = {
-    default: "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+    default: "border-transparent bg-primary text-primary-foreground hover:bg-gray",
     secondary: "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
     destructive: "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
     outline: "text-foreground",
@@ -111,7 +111,7 @@ const Badge = ({ className, variant = 'default', ...props }: React.HTMLAttribute
   return (
     <div 
       className={cn(
-        "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+        "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-gray",
         variants[variant],
         className
       )} 
@@ -126,7 +126,7 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
       <input
         type={type}
         className={cn(
-          "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+          "flex h-16 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-gray focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500 md:text-sm",
           className
         )}
         ref={ref}
@@ -136,22 +136,24 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
   }
 );
 Input.displayName = "Input";
+
 const Label = React.forwardRef<HTMLLabelElement, React.LabelHTMLAttributes<HTMLLabelElement>>(
   ({ className, ...props }, ref) => (
     <label
       ref={ref}
-      className={cn("text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70", className)}
+      className={cn("text-sm font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70", className)}
       {...props}
     />
   )
 );
 Label.displayName = "Label";
+
 const Textarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(
   ({ className, ...props }, ref) => {
     return (
       <textarea
         className={cn(
-          "flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+          "flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-gray focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500",
           className
         )}
         ref={ref}
@@ -210,11 +212,16 @@ const DialogHeader = ({ children, className, ...props }: React.HTMLAttributes<HT
   </div>
 );
 
-const DialogTitle = ({ children, className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
-  <h2 className={cn("text-lg font-semibold leading-none tracking-tight", className)} {...props}>
-    {children}
-  </h2>
+const DialogTitle = React.forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTMLHeadingElement>>(
+  ({ className, ...props }, ref) => (
+    <h2
+      ref={ref}
+      className={cn("text-lg font-semibold leading-none tracking-tight", className)}
+      {...props}
+    />
+  )
 );
+DialogTitle.displayName = "DialogTitle";
 
 const Tabs = ({ children, defaultValue, className }: {
   children: React.ReactNode;
@@ -278,44 +285,31 @@ const TabsContent = ({ value, children, activeTab, className }: {
 };
 
 // Mock data
-const mockDecks = [
-  {
-    id: "1",
-    name: "Advanced Mathematics - Calculus",
-    subject: "Mathematics",
-    cardCount: 45,
-    dueCards: 12,
-    mastered: 28,
-    learning: 17,
-    lastStudied: "2024-06-18",
-    difficulty: "Hard",
-    shared: false
-  },
-  {
-    id: "2",
-    name: "Physics - Quantum Mechanics",
-    subject: "Physics",
-    cardCount: 32,
-    dueCards: 8,
-    mastered: 20,
-    learning: 12,
-    lastStudied: "2024-06-17",
-    difficulty: "Medium",
-    shared: true
-  },
-  {
-    id: "3",
-    name: "Chemistry - Organic Compounds",
-    subject: "Chemistry",
-    cardCount: 28,
-    dueCards: 15,
-    mastered: 10,
-    learning: 18,
-    lastStudied: "2024-06-16",
-    difficulty: "Medium",
-    shared: false
-  }
-];
+type deck = {
+  id: number,
+  name: string,
+  subject: string,
+  is_shared: boolean,
+  cardCount: number,
+  dueCards: number,
+  mastered: number,
+  learning: number,
+  lastStudied: string,
+  created_at: Date
+}
+
+type flashCard={
+  id: number,
+  deck_id: number,
+  question: string,
+  difficulty: "Medium"
+}
+/*type answer={
+  id: number,
+  card_id: number,
+  answer: string,
+  explanation: string,
+}*/
 
 const mockFlashcards = [
   {
@@ -402,28 +396,61 @@ const ToastContainer = ({ toasts }: { toasts: Array<{ id: string; title: string;
 );
 
 // Create Deck Dialog Component
-const CreateDeckDialog = ({ open, onOpenChange }: {
+const CreateDeckDialog = ({ open, onOpenChange, subjects, onDeckCreated }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  subjects: { id: string; name: string }[];
+  onDeckCreated: () => void;
 }) => {
+  const [loading, setLoading] = useState(false);
   const [deckName, setDeckName] = useState("");
   const [subject, setSubject] = useState("");
   const [description, setDescription] = useState("");
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (deckName.trim() && subject.trim()) {
-      toast({
-        title: "Deck Created Successfully!",
-        description: `"${deckName}" has been created in ${subject}`,
-      });
-      
-      setDeckName("");
-      setSubject("");
-      setDescription("");
-      onOpenChange(false);
+      setLoading(true);
+      try {
+        const res = await fetch('http://127.0.0.1:8000/flashcard/addCardDeck/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Token ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({
+            subject: subject,
+            name: deckName
+          }),
+          credentials: 'include'
+        });
+
+        const data = await res.json();
+
+        if (data.status) {
+          toast({
+            title: "Deck Created Successfully!",
+            description: `"${deckName}" has been created in ${subjects.find(subj => subj.id === subject)?.name}`,
+          });
+          setDeckName("");
+          setSubject("");
+          setDescription("");
+          onDeckCreated(); // Trigger deck list refresh
+          onOpenChange(false);
+        } else {
+          throw new Error(data.message || "Failed to create deck");
+        }
+      } catch (error) {
+        toast({
+          title: "Error Creating Deck",
+          description: "Please try again later.",
+        });
+        console.error("Error creating deck:", error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -447,13 +474,22 @@ const CreateDeckDialog = ({ open, onOpenChange }: {
 
           <div>
             <Label htmlFor="subject">Subject</Label>
-            <Input
+            <select
               id="subject"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
-              placeholder="e.g., Mathematics"
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
               required
-            />
+            >
+              <option value="" disabled>
+                Select a subject
+              </option>
+              {subjects.map((subj) => (
+                <option key={subj.id} value={subj.id}>
+                  {subj.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>
@@ -471,8 +507,8 @@ const CreateDeckDialog = ({ open, onOpenChange }: {
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" className="bg-purple-600 hover:bg-purple-700">
-              Create Deck
+            <Button type="submit" className="bg-purple-600 hover:bg-purple-700" disabled={loading}>
+              {loading ? "Creating..." : <><Plus className="h-4 w-4 mr-2" />Create Deck</>}
             </Button>
           </div>
         </form>
@@ -481,29 +517,40 @@ const CreateDeckDialog = ({ open, onOpenChange }: {
   );
 };
 
-// Flashcard Review Component
-interface Deck {
-  id: string;
-  name: string;
-  subject: string;
-  cardCount: number;
-  dueCards: number;
-  mastered: number;
-  learning: number;
-  lastStudied: string;
-  difficulty: string;
-  shared: boolean;
-}
-
-const FlashcardReview = ({ deck, onBack }: { deck: Deck; onBack: () => void }) => {
+const FlashcardReview = ({ deck, onBack }: { deck: deck; onBack: () => void }) => {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  const [flashCards,setFlashCards] = useState<flashCard[]>([]);
   const [showAnswer, setShowAnswer] = useState(false);
   const [sessionStats, setSessionStats] = useState({ correct: 0, incorrect: 0, again: 0 });
   const { toast } = useToast();
+  const [thisCards, setThisCards] = useState<flashCard[]>(flashCards.filter(card => card.deck_id === Number(deck.id)));
+  //const currentCard = thisCards[currentCardIndex];
+  const isLastCard = currentCardIndex === thisCards.length - 1;
 
-  const currentCard = mockFlashcards[currentCardIndex];
-  const isLastCard = currentCardIndex === mockFlashcards.length - 1;
+  useEffect(() => {
+    getFlashCards()
+  },[showAnswer]);
+  const getFlashCards = async () => {
+    const res= await fetch('',{
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Token ${localStorage.getItem('token')}`
+      },
+      credentials: 'include'
+    });
 
+    const data = await res.json();
+    if (data.status) {
+      setFlashCards(data.flashcards);
+      setThisCards(flashCards.filter(card => card.deck_id === Number(deck.id)));
+    } else {
+      toast({
+        title: "Error Fetching Cards",
+        description: "Please try again later.",
+      });
+    }
+  }
   const handleCardResponse = (response: "again" | "hard" | "good" | "easy") => {
     const newStats = { ...sessionStats };
     
@@ -520,7 +567,7 @@ const FlashcardReview = ({ deck, onBack }: { deck: Deck; onBack: () => void }) =
     if (isLastCard) {
       toast({
         title: "Review Session Complete!",
-        description: `Reviewed ${mockFlashcards.length} cards. Good work!`,
+        description: `Reviewed ${flashCards.length} cards. Good work!`,
       });
       onBack();
     } else {
@@ -549,7 +596,7 @@ const FlashcardReview = ({ deck, onBack }: { deck: Deck; onBack: () => void }) =
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-bold text-white">{deck.name}</h1>
-              <p className="text-white">Card {currentCardIndex + 1} of {mockFlashcards.length}</p>
+              <p className="text-white">Card {currentCardIndex + 1} of {thisCards.length}</p>
             </div>
             <div className="flex gap-4 text-sm">
               <div className="text-center">
@@ -579,9 +626,8 @@ const FlashcardReview = ({ deck, onBack }: { deck: Deck; onBack: () => void }) =
           <Card className="h-96 cursor-pointer" onClick={flipCard}>
             <CardHeader>
               <div className="flex justify-between items-center">
-                <Badge variant={currentCard.difficulty === "Easy" ? "secondary" : 
-                              currentCard.difficulty === "Medium" ? "default" : "destructive"}>
-                  {currentCard.difficulty}
+                <Badge variant='secondary'>
+                  {/*{currentCard.difficulty}*/}
                 </Badge>
                 <div className="flex gap-2">
                   <Button
@@ -606,13 +652,13 @@ const FlashcardReview = ({ deck, onBack }: { deck: Deck; onBack: () => void }) =
                 {!showAnswer ? (
                   <div>
                     <h2 className="text-xl font-semibold mb-4">Question</h2>
-                    <p className="text-lg">{currentCard.front}</p>
+                    <p className="text-lg"></p>
                     <p className="text-sm text-white mt-4">Click to reveal answer</p>
                   </div>
                 ) : (
                   <div>
                     <h2 className="text-xl font-semibold mb-4 text-green-600">Answer</h2>
-                    <p className="text-lg">{currentCard.back}</p>
+                    <p className="text-lg"></p>
                   </div>
                 )}
               </div>
@@ -661,7 +707,7 @@ const FlashcardReview = ({ deck, onBack }: { deck: Deck; onBack: () => void }) =
 };
 
 // Quiz Mode Component
-const QuizMode = ({ deck, onBack }: { deck: Deck; onBack: () => void }) => {
+const QuizMode = ({ deck, onBack }: { deck: deck; onBack: () => void }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
@@ -943,42 +989,104 @@ const StudyStats = () => {
 
 // Main Flashcard Application Component
 const CompleteFlashcardApp = () => {
-  const [selectedDeck, setSelectedDeck] = useState<Deck | null>(null);
+  const [selectedDeck, setSelectedDeck] = useState<deck | null>(null);
   const [activeMode, setActiveMode] = useState("overview");
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const { toasts } = useToast();
+  const { toast, toasts } = useToast();
+  const [decks, setDecks] = useState<deck[]>([]);
+ 
+  //const [answers, setAnswers] = useState<answer[]>([]);
+  const [refresh, setRefresh] = useState(false);
 
-  const handleStartReview = (deck: Deck) => {
+  type Subjects = {
+    id: number,
+    name: string,
+    description: string
+  }
+
+  const [subjects, setSubjects] = useState<Subjects[]>([]);
+
+  useEffect(() => {
+    getSubjects();
+    getDecks();
+  }, [refresh]);
+
+  const getSubjects = async () => {
+    try {
+      const res = await fetch('http://127.0.0.1:8000/studyplanner/allSubjects/', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Token ${localStorage.getItem('token')}`
+        },
+        credentials: 'include'
+      });
+
+      const data = await res.json();
+      if (data.status) {
+        setSubjects(data.subjects);
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to load subjects",
+        });
+      }
+    } catch  {
+      toast({
+        title: "Error",
+        description: "Failed to load subjects",
+      });
+    }
+  };
+
+  const getDecks = async () => {
+    try {
+      const res = await fetch('http://127.0.0.1:8000/flashcard/getDecks/', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Token ${localStorage.getItem('token')}`
+        },
+        credentials: 'include'
+      });
+
+      const data = await res.json();
+      if (data.status) {
+        setDecks(data.decks);
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to load decks",
+        });
+      }
+    } catch  {
+      toast({
+        title: "Error",
+        description: "Failed to load decks",
+      });
+    }
+  };
+
+  const handleDeckCreated = () => {
+    setRefresh(prev => !prev); // Toggle refresh to trigger useEffect
+  };
+   
+  const handleStartReview = (deck: deck) => {
     setSelectedDeck(deck);
     setActiveMode("review");
   };
 
-  const handleStartQuiz = (deck: Deck) => {
+  const handleStartQuiz = (deck: deck) => {
     setSelectedDeck(deck);
     setActiveMode("quiz");
   };
 
-  const handleBackToOverview = () => {
-    setSelectedDeck(null);
-    setActiveMode("overview");
-  };
-
   if (activeMode === "review" && selectedDeck) {
-    return (
-      <>
-        <FlashcardReview deck={selectedDeck} onBack={handleBackToOverview} />
-        <ToastContainer toasts={toasts} />
-      </>
-    );
+    return <FlashcardReview deck={selectedDeck} onBack={() => setActiveMode("overview")} />;
   }
-
+  
   if (activeMode === "quiz" && selectedDeck) {
-    return (
-      <>
-        <QuizMode deck={selectedDeck} onBack={handleBackToOverview} />
-        <ToastContainer toasts={toasts} />
-      </>
-    );
+    return <QuizMode deck={selectedDeck} onBack={() => setActiveMode("overview")} />;
   }
 
   return (
@@ -991,7 +1099,7 @@ const CompleteFlashcardApp = () => {
 
         <Tabs defaultValue="decks" className="space-y-6">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger   value="decks" className="flex items-center gap-2">
+            <TabsTrigger value="decks" className="flex items-center gap-2">
               <BookOpen className="h-4 w-4" />
               My Decks
             </TabsTrigger>
@@ -1004,78 +1112,77 @@ const CompleteFlashcardApp = () => {
           <TabsContent value="decks" className="space-y-6">
             <div className="flex gap-4">
               <Button 
-            onClick={() => setShowCreateDialog(true)}
-            className="bg-purple-600 hover:bg-purple-700"
+                onClick={() => setShowCreateDialog(true)}
+                className="bg-purple-600 hover:bg-purple-700"
               >
-            <Plus className="h-4 w-4 mr-2" />
-            Create New Deck
+                <Plus className="h-4 w-4 mr-2" />
+                Create New Deck
               </Button>
-              
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {mockDecks.map((deck) => (
-            <Card key={deck.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div>
-                <CardTitle className="text-lg">{deck.name}</CardTitle>
-                <CardDescription className="mt-1">{deck.subject}</CardDescription>
-                  </div>
-                  {deck.shared && (
-                <Badge variant="secondary">Shared</Badge>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-3 gap-2 text-sm">
-                  <div className="text-center">
-                <div className="font-semibold text-green-600">{deck.mastered}</div>
-                <div className="text-gray-500">Mastered</div>
-                  </div>
-                  <div className="text-center">
-                <div className="font-semibold text-yellow-600">{deck.learning}</div>
-                <div className="text-gray-500">Learning</div>
-                  </div>
-                  <div className="text-center">
-                <div className="font-semibold text-red-600">{deck.dueCards}</div>
-                <div className="text-gray-500">Due</div>
-                  </div>
-                </div>
+              {decks.map((deck) => (
+                <Card key={deck.id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <CardTitle className="text-lg">{deck.name}</CardTitle>
+                        <CardDescription className="mt-1">{deck.subject}</CardDescription>
+                      </div>
+                      {deck.is_shared && (
+                        <Badge variant="secondary">Shared</Badge>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-3 gap-2 text-sm">
+                      <div className="text-center">
+                        <div className="font-semibold text-green-600">{deck.mastered}</div>
+                        <div className="text-gray-500">Mastered</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="font-semibold text-yellow-600">{deck.learning}</div>
+                        <div className="text-gray-500">Learning</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="font-semibold text-red-600">{deck.dueCards}</div>
+                        <div className="text-gray-500">Due</div>
+                      </div>
+                    </div>
 
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                className="bg-purple-600 h-2 rounded-full" 
-                style={{ width: `${(deck.mastered / deck.cardCount) * 100}%` }}
-                  ></div>
-                </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-purple-600 h-2 rounded-full" 
+                        style={{ width: `${(deck.mastered / deck.cardCount) * 100}%` }}
+                      ></div>
+                    </div>
 
-                <div className="flex gap-2">
-                  <Button 
-                onClick={() => handleStartReview(deck)}
-                size="sm" 
-                className="flex-1 text-white bg-blue-600 hover:bg-blue-700"
-                  >
-                <Brain className="h-4 w-4 mr-1" />
-                Study
-                  </Button>
-                  <Button 
-                onClick={() => handleStartQuiz(deck)}
-                size="sm" 
-                variant="outline" 
-                className="flex-1 text-white"
-                  >
-                <Play className="h-4 w-4 mr-1" />
-                Quiz
-                  </Button>
-                </div>
+                    <div className="flex gap-2">
+                      <Button 
+                        onClick={() => handleStartReview(deck)}
+                        size="sm" 
+                        className="flex-1 text-white bg-blue-600 hover:bg-blue-700"
+                      >
+                        <Brain className="h-4 w-4 mr-1" />
+                        Study
+                      </Button>
+                      <Button 
+                        onClick={() => handleStartQuiz(deck)}
+                        size="sm" 
+                        variant="outline" 
+                        className="flex-1 text-white"
+                      >
+                        <Play className="h-4 w-4 mr-1" />
+                        Quiz
+                      </Button>
+                    </div>
 
-                <div className="flex items-center gap-2 text-xs text-gray-500">
-                  <Clock className="h-3 w-3" />
-                  Last studied: {deck.lastStudied}
-                </div>
-              </CardContent>
-            </Card>
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <Clock className="h-3 w-3" />
+                      Last studied: {deck.lastStudied}
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           </TabsContent>
@@ -1084,11 +1191,16 @@ const CompleteFlashcardApp = () => {
             <StudyStats />
           </TabsContent>
         </Tabs>
-
-        <CreateDeckDialog open={showCreateDialog} onOpenChange={setShowCreateDialog} />
+        <CreateDeckDialog 
+          open={showCreateDialog} 
+          onOpenChange={setShowCreateDialog} 
+          subjects={subjects.map(subject => ({ id: subject.id.toString(), name: subject.name }))} 
+          onDeckCreated={handleDeckCreated}
+        />
         <ToastContainer toasts={toasts} />
-          </div>
-        </div>
-      );
-    };
-    export default CompleteFlashcardApp;
+      </div>
+    </div>
+  );
+};
+
+export default CompleteFlashcardApp;
