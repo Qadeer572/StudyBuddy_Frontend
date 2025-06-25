@@ -807,6 +807,31 @@ const QuizMode = ({ deck, onBack }: { deck: deck; onBack: () => void }) => {
   console.log("Initialize Current Question with index :",currentQuestionIndex,currentQuestion)
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
 
+  const updateScore = async ()=>{
+    const res= await fetch('http://127.0.0.1:8000/flashcard/updatQuizScore/',{
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Token ${localStorage.getItem('token')}`,
+      },
+      body: JSON.stringify({
+        quiz_id: currentQuiz?.id,
+        score: score
+      }),
+      credentials: 'include',
+    })
+
+    const data = await res.json();
+    if(data.status){
+      //
+    }
+    else{
+      toast({
+        title: "Error",
+        description: "Failed to update quiz score",
+      });
+    }
+  }
   const handleQuizComplete = () => {
     setQuizCompleted(true);
     const percentage = questions.length > 0 ? Math.round((score / questions.length) * 100) : 0;
@@ -814,6 +839,7 @@ const QuizMode = ({ deck, onBack }: { deck: deck; onBack: () => void }) => {
       title: "Quiz Complete!",
       description: `You scored ${score}/${questions.length} (${percentage}%)`,
     });
+    updateScore();
   };
 
   useEffect(() => {
@@ -1091,7 +1117,7 @@ const StudyStats = () => {
         </CardHeader>
         <CardContent>
           <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
-            <p className="text-white">Chart placeholder - Performance over time</p>
+            <p className="text-black">Chart placeholder - Performance over time</p>
           </div>
         </CardContent>
       </Card>
