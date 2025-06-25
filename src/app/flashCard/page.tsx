@@ -1,3 +1,4 @@
+
 'use client'
 import React, { useState, useEffect } from 'react';
 import { Plus, Brain, Play, BarChart3, Clock, ArrowLeft, RotateCcw, Eye, EyeOff, CheckCircle, XCircle, AlertCircle, BookOpen } from 'lucide-react';
@@ -6,7 +7,6 @@ import { Plus, Brain, Play, BarChart3, Clock, ArrowLeft, RotateCcw, Eye, EyeOff,
 const cn = (...classes: (string | undefined | null | false)[]): string => {
   return classes.filter(Boolean).join(' ');
 };
-
 // UI Components
 const Button = React.forwardRef<
   HTMLButtonElement,
@@ -17,7 +17,6 @@ const Button = React.forwardRef<
   }
 >(({ className, variant = 'default', size = 'default', ...props }, ref) => {
   const baseClasses = "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50";
-  
   const variants = {
     default: "bg-primary text-primary-foreground hover:bg-primary/90",
     destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
@@ -26,14 +25,12 @@ const Button = React.forwardRef<
     ghost: "hover:bg-accent hover:text-accent-foreground",
     link: "text-primary underline-offset-4 hover:underline",
   };
-
   const sizes = {
     default: "h-10 px-4 py-2",
     sm: "h-9 rounded-md px-3",
     lg: "h-11 rounded-md px-8",
     icon: "h-10 w-10",
   };
-
   return (
     <button
       className={cn(baseClasses, variants[variant], sizes[size], className)}
@@ -104,15 +101,14 @@ const Badge = ({ className, variant = 'default', ...props }: React.HTMLAttribute
     destructive: "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
     outline: "text-foreground",
   };
-
   return (
-    <div 
+    <div
       className={cn(
         "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-gray",
         variants[variant],
         className
-      )} 
-      {...props} 
+      )}
+      {...props}
     />
   );
 };
@@ -166,24 +162,20 @@ const Dialog = ({ children, open, onOpenChange }: {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onOpenChange(false);
     };
-
     if (open) {
       document.addEventListener('keydown', handleEscape);
       document.body.style.overflow = 'hidden';
     }
-
     return () => {
       document.removeEventListener('keydown', handleEscape);
       document.body.style.overflow = 'unset';
     };
   }, [open, onOpenChange]);
-
   if (!open) return null;
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div 
-        className="fixed inset-0 bg-black/80" 
+      <div
+        className="fixed inset-0 bg-black/80"
         onClick={() => onOpenChange(false)}
       />
       <div className="relative z-50 grid w-full max-w-lg gap-4 border bg-background p-6 shadow-lg sm:rounded-lg">
@@ -222,11 +214,10 @@ const Tabs = ({ children, defaultValue, className }: {
   className?: string;
 }) => {
   const [activeTab, setActiveTab] = useState(defaultValue);
-
   return (
     <div className={className}>
-      {React.Children.map(children, child => 
-        React.isValidElement(child) 
+      {React.Children.map(children, child =>
+        React.isValidElement(child)
           ? React.cloneElement(child, { activeTab, setActiveTab } as Partial<{ activeTab: string; setActiveTab: (value: string) => void }>)
           : child
       )}
@@ -269,7 +260,6 @@ const TabsContent = ({ value, children, activeTab, className }: {
   className?: string;
 }) => {
   if (activeTab !== value) return null;
-  
   return (
     <div className={cn("mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2", className)}>
       {children}
@@ -301,52 +291,42 @@ type flashCard = {
   interval: number;
 };
 
-const mockQuizQuestions = [
-  {
-    id: "1",
-    question: "What is the derivative of sin(x)?",
-    options: ["cos(x)", "-cos(x)", "sin(x)", "-sin(x)"],
-    correctAnswer: 0,
-    explanation: "The derivative of sin(x) is cos(x) by the basic differentiation rules.",
-  },
-  {
-    id: "2",
-    question: "What is the integral of 1/x?",
-    options: ["x²/2", "ln|x| + C", "1/x²", "e^x"],
-    correctAnswer: 1,
-    explanation: "The integral of 1/x is ln|x| + C, where C is the constant of integration.",
-  },
-  {
-    id: "3",
-    question: "Which statement about limits is correct?",
-    options: [
-      "Limits always equal the function value at that point",
-      "Limits describe the behavior of a function as it approaches a value",
-      "Limits can only be calculated for continuous functions",
-      "Limits are always infinity",
-    ],
-    correctAnswer: 1,
-    explanation: "Limits describe the behavior of a function as the input approaches a particular value, regardless of whether the function is defined at that point.",
-  },
-];
+type Quiz = {
+  id: number;
+  deck_id: number;
+  score: number;
+  total_questions: number;
+};
+
+type Question = {
+  id: number;
+  quiz_id: number;
+  flashcard_id: number;
+  question: string;
+  options: string[];
+  correctAnswer: number;
+};
+
+type Answer = {
+  id: number;
+  card_id: number;
+  answer: string;
+  explanation: string;
+};
 
 // Toast functionality
 const useToast = () => {
   const [toasts, setToasts] = useState<Array<{ id: string; title: string; description: string }>>([]);
-
   const toast = ({ title, description }: { title: string; description: string }) => {
     const id = Date.now().toString();
     setToasts(prev => [...prev, { id, title, description }]);
-    
     setTimeout(() => {
       setToasts(prev => prev.filter(t => t.id !== id));
     }, 3000);
   };
-
   return { toast, toasts };
 };
 
-// Toast component
 const ToastContainer = ({ toasts }: { toasts: Array<{ id: string; title: string; description: string }> }) => (
   <div className="fixed top-4 right-4 z-50 space-y-2">
     {toasts.map(toast => (
@@ -373,11 +353,10 @@ const CreateDeckDialog = ({ open, onOpenChange, subjects, onDeckCreated }: {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (deckName.trim() && subject.trim()) {
       setLoading(true);
       try {
-        const res = await fetch('https://studybuddys-454c3f01f785.herokuapp.com/flashcard/addCardDeck/', {
+        const res = await fetch('http://127.0.0.1:8000/flashcard/addCardDeck/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -389,9 +368,7 @@ const CreateDeckDialog = ({ open, onOpenChange, subjects, onDeckCreated }: {
           }),
           credentials: 'include',
         });
-
         const data = await res.json();
-
         if (data.status) {
           toast({
             title: "Deck Created Successfully!",
@@ -434,7 +411,6 @@ const CreateDeckDialog = ({ open, onOpenChange, subjects, onDeckCreated }: {
               required
             />
           </div>
-
           <div>
             <Label htmlFor="subject">Subject</Label>
             <select
@@ -454,7 +430,6 @@ const CreateDeckDialog = ({ open, onOpenChange, subjects, onDeckCreated }: {
               ))}
             </select>
           </div>
-
           <div>
             <Label htmlFor="description">Description (Optional)</Label>
             <Textarea
@@ -465,7 +440,6 @@ const CreateDeckDialog = ({ open, onOpenChange, subjects, onDeckCreated }: {
               rows={3}
             />
           </div>
-
           <div className="flex justify-end space-x-2 pt-4">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
@@ -484,16 +458,18 @@ const CreateDeckDialog = ({ open, onOpenChange, subjects, onDeckCreated }: {
 const FlashcardReview = ({ deck, onBack }: { deck: deck; onBack: () => void }) => {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [flashCards, setFlashCards] = useState<flashCard[]>([]);
+  const [answers, setAnswers] = useState<Answer[]>([]);
   const [showAnswer, setShowAnswer] = useState(false);
   const [sessionStats, setSessionStats] = useState({ correct: 0, incorrect: 0, again: 0 });
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchFlashcards = async () => {
+    const fetchData = async () => {
       setIsLoading(true);
       try {
-        const res = await fetch(`https://studybuddys-454c3f01f785.herokuapp.com/flashcard/getflashCards/`, {
+        // Fetch Flashcards
+        const resFlashcards = await fetch(`http://127.0.0.1:8000/flashcard/getflashCards/`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -501,38 +477,44 @@ const FlashcardReview = ({ deck, onBack }: { deck: deck; onBack: () => void }) =
           },
           credentials: 'include',
         });
-        const data = await res.json();
-        if (data.status) {
-          // Filter flashcards by deck_id client-side
-          const filteredCards = data.flashcards.filter((card: flashCard) => card.deck_id === deck.id);
+        const flashcardData = await resFlashcards.json();
+        if (flashcardData.status) {
+          const filteredCards = flashcardData.flashcards.filter((card: flashCard) => card.deck_id === deck.id);
           setFlashCards(filteredCards);
-        } else {
-          toast({
-            title: "Error",
-            description: "Failed to load flashcards",
-          });
-          setFlashCards([]);
         }
-      } catch {
+
+        // Fetch Answers
+        const resAnswers = await fetch('http://127.0.0.1:8000/flashcard/getAnswer/', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Token ${localStorage.getItem('token')}`,
+          },
+          credentials: 'include',
+        });
+        const answerData = await resAnswers.json();
+        if (answerData.status) {
+          setAnswers(answerData.answers);
+        }
+      } catch (error) {
         toast({
           title: "Error",
-          description: "Failed to load flashcards",
+          description: "Failed to load data",
         });
-        setFlashCards([]);
+        console.error(error);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchFlashcards();
-   
+    fetchData();
   }, [deck.id]);
 
   const currentCard = flashCards[currentCardIndex];
+  const currentAnswer = answers.find((answer) => answer.card_id === Number(currentCard?.id));
   const isLastCard = currentCardIndex === flashCards.length - 1;
 
-  const handleCardResponse = (response: "again" | "hard" | "good" | "easy") => {
+  const handleCardResponse = async (response: "again" | "hard" | "good" | "easy") => {
     const newStats = { ...sessionStats };
-    
     if (response === "again") {
       newStats.again++;
     } else if (response === "hard") {
@@ -540,9 +522,8 @@ const FlashcardReview = ({ deck, onBack }: { deck: deck; onBack: () => void }) =
     } else {
       newStats.correct++;
     }
-    
     setSessionStats(newStats);
-    updateStatusCard();
+    await updateStatusCard();
     if (isLastCard) {
       toast({
         title: "Review Session Complete!",
@@ -555,39 +536,42 @@ const FlashcardReview = ({ deck, onBack }: { deck: deck; onBack: () => void }) =
     }
   };
 
-  const updateStatusCard = async () =>{
-    const mastered=sessionStats.correct+1;
-    const learning=sessionStats.incorrect + sessionStats.again + sessionStats.correct+1;
-    const dueCards=10-learning;
-    const sucess_rate= Math.round((mastered /learning) * 100);
-    const res= await fetch('https://studybuddys-454c3f01f785.herokuapp.com/flashcard/updatStatusCard/',{
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Token ${localStorage.getItem('token')}`,
-      },
-      
-      body: JSON.stringify({
-        deck_id: deck.id,
-        mastered: mastered,
-        learning: learning,
-        dueCards: dueCards,
-        sucess_rate: sucess_rate
-      }),
-      credentials: 'include',
-    });
-
-    const data= await res.json();
-    if(data.status){
-      //
-    }
-    else{
+  const updateStatusCard = async () => {
+    const mastered = sessionStats.correct;
+    const learning = sessionStats.incorrect + sessionStats.again + sessionStats.correct;
+    const dueCards = flashCards.length - learning;
+    const success_rate = learning > 0 ? Math.round((mastered / learning) * 100) : 0;
+    try {
+      const res = await fetch('http://127.0.0.1:8000/flashcard/updatStatusCard/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Token ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          deck_id: deck.id,
+          mastered,
+          learning,
+          dueCards,
+          success_rate,
+        }),
+        credentials: 'include',
+      });
+      const data = await res.json();
+      if (!data.status) {
+        toast({
+          title: "Error",
+          description: "Failed to update deck status",
+        });
+      }
+    } catch  {
       toast({
         title: "Error",
         description: "Failed to update deck status",
       });
     }
-  }
+  };
+
   const flipCard = () => {
     setShowAnswer(!showAnswer);
   };
@@ -628,7 +612,6 @@ const FlashcardReview = ({ deck, onBack }: { deck: deck; onBack: () => void }) =
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Decks
           </Button>
-          
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-bold text-white">{deck.name}</h1>
@@ -649,21 +632,19 @@ const FlashcardReview = ({ deck, onBack }: { deck: deck; onBack: () => void }) =
               </div>
             </div>
           </div>
-
           <div className="w-full bg-white rounded-full h-2 mt-4">
-            <div 
-              className="bg-purple-600 h-2 rounded-full transition-all duration-300" 
+            <div
+              className="bg-purple-600 h-2 rounded-full transition-all duration-300"
               style={{ width: `${((currentCardIndex + 1) / flashCards.length) * 100}%` }}
             ></div>
           </div>
         </div>
-
         <div className="max-w-2xl mx-auto">
           <Card className="h-96 cursor-pointer" onClick={flipCard}>
             <CardHeader>
               <div className="flex justify-between items-center">
                 <Badge variant="secondary">
-                  {currentCard.difficulty}
+                  {currentCard?.difficulty || 'Unknown'}
                 </Badge>
                 <div className="flex gap-2">
                   <Button
@@ -688,19 +669,21 @@ const FlashcardReview = ({ deck, onBack }: { deck: deck; onBack: () => void }) =
                 {!showAnswer ? (
                   <div>
                     <h2 className="text-xl font-semibold mb-4">Question</h2>
-                    <p className="text-lg">{currentCard.question}</p>
+                    <p className="text-lg">{currentCard?.question || 'No question available'}</p>
                     <p className="text-sm text-white mt-4">Click to reveal answer</p>
                   </div>
                 ) : (
                   <div>
                     <h2 className="text-xl font-semibold mb-4 text-green-600">Answer</h2>
-                    <p className="text-lg">{currentCard.question}</p>
+                    <p className="text-lg">{currentAnswer?.answer || currentCard?.back || 'No answer available'}</p>
+                    {currentAnswer?.explanation && (
+                      <p className="text-sm text-gray-300 mt-2">{currentAnswer.explanation}</p>
+                    )}
                   </div>
                 )}
               </div>
             </CardContent>
           </Card>
-
           {showAnswer && (
             <div className="flex justify-center gap-3 mt-6">
               <Button
@@ -750,17 +733,86 @@ const QuizMode = ({ deck, onBack }: { deck: deck; onBack: () => void }) => {
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(300);
   const [quizCompleted, setQuizCompleted] = useState(false);
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [currentQuiz, setCurrentQuiz] = useState<Quiz | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  const currentQuestion = mockQuizQuestions[currentQuestionIndex];
-  const isLastQuestion = currentQuestionIndex === mockQuizQuestions.length - 1;
+  useEffect(() => {
+    const fetchQuizData = async () => {
+      setIsLoading(true);
+      try {
+        console.log("Fetching quiz data for deck:", deck.id);
+        
+        // Fetch all quizzes
+        const resQuizes = await fetch('http://127.0.0.1:8000/flashcard/getQuizes/', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Token ${localStorage.getItem('token')}`,
+          },
+          credentials: 'include',
+        });
+        const quizData = await resQuizes.json();
+        console.log("Quiz data response:", quizData);
+        
+        // Fetch all questions
+        const resQuestions = await fetch('http://127.0.0.1:8000/flashcard/getQuizQuestion/', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Token ${localStorage.getItem('token')}`,
+          },
+          credentials: 'include',
+        });
+        const questionData = await resQuestions.json();
+
+        console.log("Question data response:", questionData);
+
+        if (quizData.status && questionData.status) {
+          // Find the specific quiz for this deck (assuming each deck has only one quiz)
+          const deckQuiz = quizData.quizzes.find((quiz: Quiz) => quiz.deck_id === deck.id);
+          console.log("Found deck quiz:", deckQuiz);
+          
+          if (deckQuiz) {
+            setCurrentQuiz(deckQuiz);
+            
+            // Filter questions for this specific quiz
+            const deckQuestions = questionData.questions 
+            console.log("Filtered questions for quiz:", deckQuestions);
+            
+            setQuestions(deckQuestions[0]);
+          } else {
+            console.log("No quiz found for deck:", deck.id);
+            setQuestions([]);
+            setCurrentQuiz(null);
+          }
+        }
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to load quiz data",
+        });
+        console.error("Error fetching quiz data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchQuizData();
+  }, [deck.id]);
+
+  const currentQuestion = questions[currentQuestionIndex];
+  
+  console.log("Initialize Current Question with index :",currentQuestionIndex,currentQuestion)
+  const isLastQuestion = currentQuestionIndex === questions.length - 1;
 
   const handleQuizComplete = () => {
     setQuizCompleted(true);
-    const percentage = Math.round((score / mockQuizQuestions.length) * 100);
+    const percentage = questions.length > 0 ? Math.round((score / questions.length) * 100) : 0;
     toast({
       title: "Quiz Complete!",
-      description: `You scored ${score}/${mockQuizQuestions.length} (${percentage}%)`,
+      description: `You scored ${score}/${questions.length} (${percentage}%)`,
     });
   };
 
@@ -787,9 +839,7 @@ const QuizMode = ({ deck, onBack }: { deck: deck; onBack: () => void }) => {
 
   const handleSubmitAnswer = () => {
     if (selectedAnswer === null) return;
-    
     setShowResult(true);
-    
     if (selectedAnswer === currentQuestion.correctAnswer) {
       setScore(prev => prev + 1);
     }
@@ -805,8 +855,18 @@ const QuizMode = ({ deck, onBack }: { deck: deck; onBack: () => void }) => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900">
+        <div className="container mx-auto p-6">
+          <p className="text-white text-center">Loading quiz...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (quizCompleted) {
-    const percentage = Math.round((score / mockQuizQuestions.length) * 100);
+    const percentage = questions.length > 0 ? Math.round((score / questions.length) * 100) : 0;
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900">
         <div className="container mx-auto p-6">
@@ -820,7 +880,7 @@ const QuizMode = ({ deck, onBack }: { deck: deck; onBack: () => void }) => {
                   {percentage}%
                 </div>
                 <div className="text-xl">
-                  You scored {score} out of {mockQuizQuestions.length} questions correctly
+                  You scored {score} out of {questions.length} questions correctly
                 </div>
                 <div className="grid grid-cols-3 gap-4 text-sm">
                   <div className="text-center">
@@ -828,19 +888,19 @@ const QuizMode = ({ deck, onBack }: { deck: deck; onBack: () => void }) => {
                     <div className="text-gray-500">Correct</div>
                   </div>
                   <div className="text-center">
-                    <div className="font-semibold text-red-600">{mockQuizQuestions.length - score}</div>
+                    <div className="font-semibold text-red-600">{questions.length - score}</div>
                     <div className="text-gray-500">Incorrect</div>
                   </div>
                   <div className="text-center">
-                    <div className="font-semibold text-blue-600">{mockQuizQuestions.length}</div>
+                    <div className="font-semibold text-blue-600">{questions.length}</div>
                     <div className="text-gray-500">Total</div>
                   </div>
                 </div>
                 <div className="flex gap-4 justify-center">
-                  <Button onClick={onBack} variant="outline" className='bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500'>
+                  <Button onClick={onBack} variant="outline" className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500">
                     Back to Decks
                   </Button>
-                  <Button 
+                  <Button
                     onClick={() => {
                       setCurrentQuestionIndex(0);
                       setSelectedAnswer(null);
@@ -862,6 +922,29 @@ const QuizMode = ({ deck, onBack }: { deck: deck; onBack: () => void }) => {
     );
   }
 
+  if (!currentQuestion || questions.length === 0) {
+    
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900">
+        <div className="container mx-auto p-6">
+          <Button onClick={onBack} variant="outline" className="mb-4 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Decks
+          </Button>
+          <div className="text-center">
+            <p className="text-white text-xl mb-4">No questions available for this quiz.</p>
+            {currentQuiz ? (
+              <p className="text-gray-300">Quiz found (ID: {currentQuiz.id}) but no questions are available.</p>
+            ) : (
+              <p className="text-gray-300">No quiz found for this deck.</p>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900">
       <div className="container mx-auto p-6">
@@ -870,11 +953,13 @@ const QuizMode = ({ deck, onBack }: { deck: deck; onBack: () => void }) => {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Decks
           </Button>
-          
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-bold text-white">{deck.name} - Quiz</h1>
-              <p className="text-white">Question {currentQuestionIndex + 1} of {mockQuizQuestions.length}</p>
+              <p className="text-white">Question {currentQuestionIndex + 1} of {questions.length}</p>
+              {currentQuiz && (
+                <p className="text-sm text-gray-300">Quiz ID: {currentQuiz.id} | Total Questions: {currentQuiz.total_questions}</p>
+              )}
             </div>
             <div className="flex items-center gap-2 text-lg font-semibold">
               <Clock className="h-5 w-5" />
@@ -882,17 +967,14 @@ const QuizMode = ({ deck, onBack }: { deck: deck; onBack: () => void }) => {
                 {formatTime(timeLeft)}
               </span>
             </div>
-
           </div>
-
           <div className="w-full bg-white rounded-full h-2 mt-4">
-            <div 
-              className="bg-purple-600 h-2 rounded-full transition-all duration-300" 
-              style={{ width: `${((currentQuestionIndex + 1) / mockQuizQuestions.length) * 100}%` }}
+            <div
+              className="bg-purple-600 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
             ></div>
           </div>
         </div>
-
         <div className="max-w-2xl mx-auto">
           <Card>
             <CardHeader>
@@ -900,9 +982,8 @@ const QuizMode = ({ deck, onBack }: { deck: deck; onBack: () => void }) => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-3">
-                {currentQuestion.options.map((option, index) => {
+                {Array.isArray(currentQuestion?.options) && currentQuestion.options.map((option, index) => {
                   let buttonClass = "w-full text-left p-4 border rounded-lg transition-colors";
-                  
                   if (showResult) {
                     if (index === currentQuestion.correctAnswer) {
                       buttonClass += " bg-green-100 border-green-500 text-green-700";
@@ -918,7 +999,6 @@ const QuizMode = ({ deck, onBack }: { deck: deck; onBack: () => void }) => {
                       buttonClass += " hover:bg-gray-50 border-gray-200";
                     }
                   }
-
                   return (
                     <button
                       key={index}
@@ -940,14 +1020,12 @@ const QuizMode = ({ deck, onBack }: { deck: deck; onBack: () => void }) => {
                   );
                 })}
               </div>
-
               {showResult && (
                 <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                   <h4 className="font-semibold text-blue-800 mb-2">Explanation:</h4>
-                  <p className="text-blue-700">{currentQuestion.explanation}</p>
+                  <p className="text-blue-700">Correct answer: {currentQuestion.options[currentQuestion.correctAnswer]}</p>
                 </div>
               )}
-
               <div className="flex justify-end gap-3 pt-4">
                 {!showResult ? (
                   <Button
@@ -988,7 +1066,6 @@ const StudyStats = () => {
             <p className="text-sm text-gray-500">Cards reviewed</p>
           </CardContent>
         </Card>
-        
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Study Streak</CardTitle>
@@ -998,7 +1075,6 @@ const StudyStats = () => {
             <p className="text-sm text-gray-500">Days in a row</p>
           </CardContent>
         </Card>
-        
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Total Time</CardTitle>
@@ -1009,7 +1085,6 @@ const StudyStats = () => {
           </CardContent>
         </Card>
       </div>
-
       <Card>
         <CardHeader>
           <CardTitle>Weekly Performance</CardTitle>
@@ -1031,20 +1106,13 @@ const CompleteFlashcardApp = () => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const { toast, toasts } = useToast();
   const [decks, setDecks] = useState<deck[]>([]);
+  const [subjects, setSubjects] = useState<{ id: number; name: string; description: string }[]>([]);
   const [refresh, setRefresh] = useState(false);
-
-  type Subjects = {
-    id: number;
-    name: string;
-    description: string;
-  };
-
-  const [subjects, setSubjects] = useState<Subjects[]>([]);
 
   useEffect(() => {
     const getSubjects = async () => {
       try {
-        const res = await fetch('https://studybuddys-454c3f01f785.herokuapp.com/studyplanner/allSubjects/', {
+        const res = await fetch('http://127.0.0.1:8000/studyplanner/allSubjects/', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -1052,7 +1120,6 @@ const CompleteFlashcardApp = () => {
           },
           credentials: 'include',
         });
-
         const data = await res.json();
         if (data.status) {
           setSubjects(data.subjects);
@@ -1072,7 +1139,7 @@ const CompleteFlashcardApp = () => {
 
     const getDecks = async () => {
       try {
-        const res = await fetch('https://studybuddys-454c3f01f785.herokuapp.com/flashcard/getDecks/', {
+        const res = await fetch('http://127.0.0.1:8000/flashcard/getDecks/', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -1080,7 +1147,6 @@ const CompleteFlashcardApp = () => {
           },
           credentials: 'include',
         });
-
         const data = await res.json();
         if (data.status) {
           setDecks(data.decks);
@@ -1136,7 +1202,6 @@ const CompleteFlashcardApp = () => {
           <h1 className="text-4xl font-bold text-white mb-2">Flashcards & Quizzes</h1>
           <p className="text-lg text-white">Master your subjects with active recall and spaced repetition</p>
         </div>
-
         <Tabs defaultValue="decks" className="space-y-6">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="decks" className="flex items-center gap-2">
@@ -1148,10 +1213,9 @@ const CompleteFlashcardApp = () => {
               Study Statistics
             </TabsTrigger>
           </TabsList>
-
           <TabsContent value="decks" className="space-y-6">
             <div className="flex gap-4">
-              <Button 
+              <Button
                 onClick={() => setShowCreateDialog(true)}
                 className="bg-purple-600 hover:bg-purple-700"
               >
@@ -1159,7 +1223,6 @@ const CompleteFlashcardApp = () => {
                 Create New Deck
               </Button>
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {decks.map((deck) => (
                 <Card key={deck.id} className="hover:shadow-lg transition-shadow">
@@ -1189,34 +1252,31 @@ const CompleteFlashcardApp = () => {
                         <div className="text-gray-500">Due</div>
                       </div>
                     </div>
-
                     <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-purple-600 h-2 rounded-full" 
+                      <div
+                        className="bg-purple-600 h-2 rounded-full"
                         style={{ width: `${(deck.mastered / deck.cardCount) * 100}%` }}
                       ></div>
                     </div>
-
                     <div className="flex gap-2">
-                      <Button 
+                      <Button
                         onClick={() => handleStartReview(deck)}
-                        size="sm" 
+                        size="sm"
                         className="flex-1 text-white bg-blue-600 hover:bg-blue-700"
                       >
                         <Brain className="h-4 w-4 mr-1" />
                         Study
                       </Button>
-                      <Button 
+                      <Button
                         onClick={() => handleStartQuiz(deck)}
-                        size="sm" 
-                        variant="outline" 
+                        size="sm"
+                        variant="outline"
                         className="flex-1 text-white"
                       >
                         <Play className="h-4 w-4 mr-1" />
                         Quiz
                       </Button>
                     </div>
-
                     <div className="flex items-center gap-2 text-xs text-gray-500">
                       <Clock className="h-3 w-3" />
                       Last studied: {deck.lastStudied}
@@ -1226,15 +1286,14 @@ const CompleteFlashcardApp = () => {
               ))}
             </div>
           </TabsContent>
-
           <TabsContent value="stats">
             <StudyStats />
           </TabsContent>
         </Tabs>
-        <CreateDeckDialog 
-          open={showCreateDialog} 
-          onOpenChange={setShowCreateDialog} 
-          subjects={subjects.map(subject => ({ id: subject.id.toString(), name: subject.name }))} 
+        <CreateDeckDialog
+          open={showCreateDialog}
+          onOpenChange={setShowCreateDialog}
+          subjects={subjects.map(subject => ({ id: subject.id.toString(), name: subject.name }))}
           onDeckCreated={handleDeckCreated}
         />
         <ToastContainer toasts={toasts} />
