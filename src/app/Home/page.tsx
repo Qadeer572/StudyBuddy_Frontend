@@ -33,7 +33,7 @@ export default function HomePage() {
         <Card title="Flashcards" desc="Memorize key concepts quickly." emoji="🧠" route="/flashCard" />
         <Card title="Group Study" desc="Collaborate with your study group." emoji="👥" route="/groupStudy" />
         <Card title="Analytics" desc="Track your progress over time." emoji="📊" route="/analytics" />
-        <Card title="Pomodoro Timer" desc="Boost focus with timed sessions." emoji="⏱️" route="/pomodoro" />
+        <Card title="Pomodoro Timer" desc="Boost focus with timed sessions." emoji="⏱️" route="/promordoTimer" />
         <Card title="Notes" desc="Organize your study materials." emoji="📝" route="/notes" />
       </div>
     </div>
