@@ -1,5 +1,4 @@
-'use client';
-
+'use client'
 import { useState, useEffect, useRef } from 'react';
 import { Play, Pause, RotateCcw, Plus, Settings, BarChart3, StickyNote, Timer, Clock, Target, TrendingUp, CalendarDays, Volume2, VolumeX, Trash2 } from 'lucide-react';
 
@@ -27,8 +26,8 @@ interface Settings {
   soundEnabled: boolean;
 }
 
-export default function Home() {
-  // Settings state
+const Index = () => {
+  // Settings state with default values
   const [settings, setSettings] = useState<Settings>({
     workDuration: 25,
     shortBreakDuration: 5,
@@ -45,7 +44,7 @@ export default function Home() {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<{ play: () => void } | null>(null);
 
-  // Session data (dummy data)
+  // Session data
   const [sessions, setSessions] = useState<Session[]>([
     {
       id: 1,
@@ -70,7 +69,7 @@ export default function Home() {
     },
   ]);
 
-  // Distraction notes (dummy data)
+  // Distraction notes
   const [distractions, setDistractions] = useState<Distraction[]>([
     { id: 1, text: 'Check email about project deadline', timestamp: new Date() },
     { id: 2, text: 'Research React hooks optimization', timestamp: new Date(Date.now() - 300000) },
@@ -99,28 +98,44 @@ export default function Home() {
   // Initialize audio
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      // Create a simple beep sound using Web Audio API
       const createBeepSound = () => {
-        const audioContext = new (window.AudioContext || (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.frequency.value = 800;
-        oscillator.type = 'sine';
-        
-        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-        
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 0.5);
+        try {
+          const audioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+          const oscillator = audioContext.createOscillator();
+          const gainNode = audioContext.createGain();
+          
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+          
+          oscillator.frequency.value = 800;
+          oscillator.type = 'sine';
+          
+          gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+          
+          oscillator.start(audioContext.currentTime);
+          oscillator.stop(audioContext.currentTime + 0.5);
+        } catch  {
+          console.log('Audio not supported');
+        }
       };
       
       audioRef.current = { play: createBeepSound };
     }
   }, []);
+
+  // Fetch settings on component mount
+  useEffect(() => {
+    getSetting();
+    getNotes();
+  }, []);
+
+  // Update timeLeft when work duration changes
+  useEffect(() => {
+    if (sessionType === 'work' && !isRunning) {
+      setTimeLeft(settings.workDuration * 60);
+    }
+  }, [settings.workDuration, sessionType, isRunning]);
 
   // Timer logic
   useEffect(() => {
@@ -200,14 +215,226 @@ export default function Home() {
     });
   };
 
-  const addDistraction = (text: string) => {
+  const addDistraction =async (text: string) => {
     const newDistractionItem = {
       id: distractions.length + 1,
       text,
       timestamp: new Date(),
     };
     setDistractions([newDistractionItem, ...distractions]);
+
+    const res=await fetch('http://127.0.0.1:8000/promodroTimer/addNotes/',{
+      method: 'POST',
+      body: JSON.stringify({
+        "notesContent":text
+      }
+      ),
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Token ${localStorage.getItem('token')}`,
+      },
+      credentials: 'include',
+    });
+    const data = await res.json();
+    if(data.status){
+      console.log('Distraction added successfully:', data);
+    }
+    else{
+      console.log('Failed to add distraction:', data);
+      alert('Failed to add distraction');
+    }
   };
+
+  const removeDistraction = async (id: number) => {
+    setDistractions(prev => prev.filter(d => d.id !== id));
+    const res= await fetch('http://127.0.0.1:8000/promodroTimer/deleteNotes/',{
+      method: 'POST',
+      body: JSON.stringify({ id }),
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Token ${localStorage.getItem('token')}`,
+      },
+      credentials: 'include',
+    });
+    const data= await res.json()
+    if (data.status) {
+      console.log('Distraction removed successfully:', data);
+    } else {
+      console.log('Failed to remove distraction:', data);
+      alert('Failed to remove distraction');
+    }
+  };
+
+  
+  // Backend API functions
+  const getSetting = async () => {
+    try {
+      const res = await fetch('http://127.0.0.1:8000/promodroTimer/getSetting/', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Token ${localStorage.getItem('token')}`,
+        },
+        credentials: 'include',
+      });
+      const data = await res.json();
+      if (data.status) {
+        console.log('Fetched settings:', data);
+        const newSettings = {
+          workDuration: Number(data.workDuration) || 25,
+          shortBreakDuration: Number(data.shortBreak) || 5,
+          longBreakDuration: Number(data.longBreak) || 15,
+          autoStart: data.autoStart ?? true,
+          soundEnabled: data.audioNotification ?? true,
+        };
+        setSettings(newSettings);
+        console.log('Applied settings:', newSettings);
+        setTimeLeft((Number(data.workDuration) || 25) * 60);
+      } else {
+        console.log('Failed to fetch settings:', data);
+        alert('Failed to Fetch Settings');
+      }
+    } catch (error) {
+      console.error('Error fetching settings:', error);
+      alert('Error fetching settings. Using default values.');
+      setSettings({
+        workDuration: 25,
+        shortBreakDuration: 5,
+        longBreakDuration: 15,
+        autoStart: true,
+        soundEnabled: true,
+      });
+      setTimeLeft(25 * 60);
+    }
+  };
+  
+  const getNotes=async ()=>{
+    const res= await fetch('http://127.0.0.1:8000/promodroTimer/getNotes/',{
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Token ${localStorage.getItem('token')}`,
+      },
+      credentials: 'include',
+    });
+
+    const data= await res.json();
+    if (data.status) {
+      console.log('Fetched notes:', data);
+      setDistractions(data.data);
+    } else {
+      console.log('Failed to fetch notes:', data);
+      alert('Failed to Fetch Notes');
+    }
+  }
+
+  const updateSetting = async (key: keyof Settings, value: number | boolean) => {
+    // Optimistically update the frontend state
+    const previousSettings = { ...settings };
+    const newSettings = {
+      ...settings,
+      [key]: value,
+    };
+    setSettings(newSettings);
+    console.log(distractionText[0])
+
+    // Update timeLeft if workDuration changes
+    if (key === 'workDuration' && typeof value === 'number') {
+      setTimeLeft(value * 60);
+    }
+
+    // Prepare the updated settings for the API call
+    const updatedSettings = {
+      workDuration: key === 'workDuration' ? value : settings.workDuration,
+      shortBreak: key === 'shortBreakDuration' ? value : settings.shortBreakDuration,
+      longBreak: key === 'longBreakDuration' ? value : settings.longBreakDuration,
+      autoStart: key === 'autoStart' ? value : settings.autoStart,
+      audioNotification: key === 'soundEnabled' ? value : settings.soundEnabled,
+    };
+
+    try {
+      console.log('Sending update to backend:', updatedSettings);
+      const res = await fetch('http://127.0.0.1:8000/promodroTimer/updatSetting/', {
+        method: 'POST',
+        body: JSON.stringify(updatedSettings),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Token ${localStorage.getItem('token')}`,
+        },
+        credentials: 'include',
+      });
+      const data = await res.json();
+      if (data.status) {
+        console.log('Setting updated successfully:', data);
+        // Don't call getSetting here to avoid overwriting local state
+      } else {
+        console.log('Failed to update setting:', data);
+        alert('Failed to Update Setting');
+        // Rollback to previous settings
+        setSettings(previousSettings);
+        if (key === 'workDuration' && typeof value === 'number') {
+          setTimeLeft(previousSettings.workDuration * 60);
+        }
+      }
+    } catch (error) {
+      console.error('Error updating settings:', error);
+      alert('Error updating settings. Reverting to previous values.');
+      // Rollback to previous settings
+      setSettings(previousSettings);
+      if (key === 'workDuration' && typeof value === 'number') {
+        setTimeLeft(previousSettings.workDuration * 60);
+      }
+    }
+  };
+
+  const resetToDefaults = async () => {
+    const defaultSettings = {
+      workDuration: 25,
+      shortBreakDuration: 5,
+      longBreakDuration: 15,
+      autoStart: true,
+      soundEnabled: true,
+    };
+
+    setSettings(defaultSettings);
+    setTimeLeft(25 * 60);
+
+    try {
+      const res = await fetch('http://127.0.0.1:8000/setDefaultTimer/', {
+        method: 'POST',
+        body: JSON.stringify({
+          workDuration: 25,
+          shortBreak: 5,
+          longBreak: 15,
+          autoStart: true,
+          audioNotification: true,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Token ${localStorage.getItem('token')}`,
+        },
+        credentials: 'include',
+      });
+
+      const data = await res.json();
+
+      if (data.status) {
+        console.log('Reset to defaults:', data);
+        // Don't call getSetting here to avoid overwriting local state
+      } else {
+        console.log('Failed to reset settings:', data);
+        alert('Failed to Set Default Setting');
+      }
+    } catch (error) {
+      console.error('Error resetting settings:', error);
+      alert('Error resetting settings. Defaults applied locally.');
+    }
+  };
+
+  // Debug settings state changes
+  useEffect(() => {
+    console.log('Current settings state:', settings);
+  }, [settings]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -255,23 +482,6 @@ export default function Home() {
     }
   };
 
-  const updateSetting = (key: keyof Settings, value: number | boolean) => {
-    setSettings(prev => ({
-      ...prev,
-      [key]: value,
-    }));
-  };
-
-  const resetToDefaults = () => {
-    setSettings({
-      workDuration: 25,
-      shortBreakDuration: 5,
-      longBreakDuration: 15,
-      autoStart: true,
-      soundEnabled: true,
-    });
-  };
-
   // Stats calculations
   const totalSessions = sessions.reduce((sum, session) => sum + session.completed, 0);
   const totalMinutes = sessions.reduce((sum, session) => sum + session.workMinutes, 0);
@@ -279,13 +489,9 @@ export default function Home() {
     ? (sessions.reduce((sum, session) => sum + (session.completed / session.target), 0) / sessions.length) * 100
     : 0;
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: Date) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      weekday: 'short', 
-      month: 'short', 
-      day: 'numeric' 
-    });
+    return date 
   };
 
   const formatTimeDisplay = (minutes: number) => {
@@ -295,10 +501,7 @@ export default function Home() {
   };
 
   const formatTimestamp = (date: Date) => {
-    return date.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    });
+    return date 
   };
 
   const formatDateStamp = (date: Date) => {
@@ -306,19 +509,17 @@ export default function Home() {
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
     
-    if (date.toDateString() === today.toDateString()) {
+    if (date  === today ) {
       return 'Today';
-    } else if (date.toDateString() === yesterday.toDateString()) {
+    } else if (date  === yesterday ) {
       return 'Yesterday';
     } else {
-      return date.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric' 
-      });
+      return date 
     }
   };
 
   return (
+    // ... keep existing code (entire JSX return structure)
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-indigo-900">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         <div className="text-center mb-8">
@@ -341,7 +542,7 @@ export default function Home() {
                 className={`flex items-center text-white justify-center gap-2 px-4 py-3 rounded-md text-sm font-medium transition-all ${
                   activeTab === id
                     ? 'bg-gray-900 text-white shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    : 'text-gray-300 hover:text-white hover:bg-gray-700'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -386,7 +587,7 @@ export default function Home() {
                       ) : (
                         <button 
                           onClick={() => setIsRunning(false)}
-                          className="flex items-center gap-2 px-8 py-3 border-2 border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50 rounded-lg font-medium transition-all"
+                          className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white rounded-lg font-medium transition-all"
                         >
                           <Pause className="w-5 h-5" />
                           Pause
@@ -398,7 +599,7 @@ export default function Home() {
                           setIsRunning(false);
                           setTimeLeft(currentDuration);
                         }}
-                        className="flex items-center gap-2 px-8 py-3 border-2 border-gray-300 text-gray-300 hover:border-gray-400 hover:bg-blue-950 rounded-lg font-medium transition-all"
+                        className="flex items-center gap-2 px-8 py-3 border-2 border-gray-400 text-gray-300 hover:border-gray-300 hover:bg-gray-800 rounded-lg font-medium transition-all"
                       >
                         <RotateCcw className="w-5 h-5" />
                         Reset
@@ -418,7 +619,7 @@ export default function Home() {
                             value={distractionText}
                             onChange={(e) => setDistractionText(e.target.value)}
                             placeholder="Jot down a quick thought..."
-                            className="flex-1 px-3 py-2 border border-gray-500 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            className="flex-1 px-3 py-2 border border-gray-500 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-800 text-white"
                             onKeyPress={(e) => e.key === 'Enter' && handleAddDistraction()}
                           />
                           <button 
@@ -436,15 +637,15 @@ export default function Home() {
               
               <div className="space-y-4">
                 <div className="bg-gradient-to-br from-gray-800 via-blue-800 to-indigo-900 rounded-xl shadow-lg p-6">
-                  <h3 className="text-lg font-semibold mb-4">Todays Progress</h3>
+                  <h3 className="text-lg font-semibold mb-4 text-white">Todays Progress</h3>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-300">Completed</span>
-                      <span className="font-bold text-lg">{currentSession.completed}</span>
+                      <span className="font-bold text-lg text-white">{currentSession.completed}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-300">Target</span>
-                      <span className="font-bold text-lg">{currentSession.target}</span>
+                      <span className="font-bold text-lg text-white">{currentSession.target}</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div 
@@ -471,7 +672,7 @@ export default function Home() {
                   <Target className="h-5 w-5 text-red-500" />
                   <div>
                     <p className="text-sm font-medium text-gray-100">Total Sessions</p>
-                    <p className="text-2xl font-bold text-gray-300">{totalSessions}</p>
+                    <p className="text-2xl font-bold text-white">{totalSessions}</p>
                   </div>
                 </div>
               </div>
@@ -481,7 +682,7 @@ export default function Home() {
                   <Clock className="h-5 w-5 text-orange-500" />
                   <div>
                     <p className="text-sm font-medium text-gray-100">Focus Time</p>
-                    <p className="text-2xl font-bold text-gray-300">{formatTimeDisplay(totalMinutes)}</p>
+                    <p className="text-2xl font-bold text-white">{formatTimeDisplay(totalMinutes)}</p>
                   </div>
                 </div>
               </div>
@@ -491,7 +692,7 @@ export default function Home() {
                   <TrendingUp className="h-5 w-5 text-green-500" />
                   <div>
                     <p className="text-sm font-medium text-gray-100">Avg. Completion</p>
-                    <p className="text-2xl font-bold text-gray-300">{averageCompletion.toFixed(0)}%</p>
+                    <p className="text-2xl font-bold text-white">{averageCompletion.toFixed(0)}%</p>
                   </div>
                 </div>
               </div>
@@ -501,20 +702,20 @@ export default function Home() {
                   <CalendarDays className="h-5 w-5 text-purple-500" />
                   <div>
                     <p className="text-sm font-medium text-gray-100">Active Days</p>
-                    <p className="text-2xl font-bold text-gray-300">{sessions.length}</p>
+                    <p className="text-2xl font-bold text-white">{sessions.length}</p>
                   </div>
                 </div>
               </div>
             </div>
 
             <div className="bg-gradient-to-br from-gray-800 via-blue-800 to-indigo-900 rounded-xl shadow-lg p-6">
-              <h3 className="text-lg font-semibold mb-4">Recent Sessions</h3>
+              <h3 className="text-lg font-semibold mb-4 text-white">Recent Sessions</h3>
               <div className="space-y-4">
                 {sessions.map((session) => (
                   <div key={session.id} className="flex items-center justify-between p-4 bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 rounded-lg">
                     <div className="flex items-center space-x-4">
                       <div className="text-sm font-medium text-gray-300">
-                        {formatDate(session.date)}
+                        {session.date}
                       </div>
                       <div className={`px-3 py-1 rounded-full text-xs font-medium ${
                         session.completed >= session.target 
@@ -535,7 +736,7 @@ export default function Home() {
                           style={{ width: `${(session.completed / session.target) * 100}%` }}
                         />
                       </div>
-                      <div className="text-sm font-medium">
+                      <div className="text-sm font-medium text-white">
                         {Math.round((session.completed / session.target) * 100)}%
                       </div>
                     </div>
@@ -550,7 +751,7 @@ export default function Home() {
         {activeTab === 'notes' && (
           <div className="space-y-6">
             <div className="bg-gradient-to-br from-gray-800 via-blue-800 to-indigo-900 rounded-xl shadow-lg p-6">
-              <h3 className="text-lg font-semibold mb-4">Capture Distractions</h3>
+              <h3 className="text-lg font-semibold mb-4 text-white">Capture Distractions</h3>
               <p className="text-sm text-gray-300 mb-4">
                 Write down thoughts that pop up during focus sessions to review later.
               </p>
@@ -559,7 +760,7 @@ export default function Home() {
                   value={newDistraction}
                   onChange={(e) => setNewDistraction(e.target.value)}
                   placeholder="What's on your mind? (e.g., 'Check email about project deadline', 'Research React hooks')"
-                  className="w-full min-h-[100px] p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                  className="w-full min-h-[100px] p-3 border border-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 bg-gray-800 text-white"
                 />
                 <button 
                   onClick={handleAddDistractionFromNotes}
@@ -573,8 +774,8 @@ export default function Home() {
 
             <div className="bg-gradient-to-br from-gray-800 via-blue-800 to-indigo-900 rounded-xl shadow-lg p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold">Recent Distractions</h3>
-                <div className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
+                <h3 className="text-lg font-semibold text-white">Recent Distractions</h3>
+                <div className="px-3 py-1 bg-gray-700 text-gray-300 rounded-full text-sm">
                   {distractions.length} notes
                 </div>
               </div>
@@ -584,7 +785,7 @@ export default function Home() {
                   <div className="text-gray-400 mb-2">
                     <Clock className="h-12 w-12 mx-auto" />
                   </div>
-                  <p className="text-gray-500">No distractions captured yet</p>
+                  <p className="text-gray-300">No distractions captured yet</p>
                   <p className="text-sm text-gray-400">
                     Add your first distraction note above
                   </p>
@@ -594,18 +795,21 @@ export default function Home() {
                   {distractions.map((distraction) => (
                     <div 
                       key={distraction.id}
-                      className="flex items-start space-x-4 p-4 bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 rounded-lg hover:bg-gray-100 transition-colors"
+                      className="flex items-start space-x-4 p-4 bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 rounded-lg hover:bg-opacity-80 transition-colors"
                     >
                       <div className="flex-1">
                         <p className="text-gray-300 mb-2">{distraction.text}</p>
-                        <div className="flex items-center space-x-2 text-xs text-gray-200">
+                        <div className="flex items-center space-x-2 text-xs text-gray-400">
                           <Clock className="h-3 w-3" />
-                          <span>{formatDateStamp(distraction.timestamp)}</span>
+                          <span>{distraction.timestamp.toLocaleString()}</span>
                           <span>•</span>
-                          <span>{formatTimestamp(distraction.timestamp)}</span>
+                          <span>{distraction.timestamp.toLocaleString()}</span>
                         </div>
                       </div>
-                      <button className="text-gray-300 hover:text-red-500 p-1">
+                      <button 
+                        onClick={() => removeDistraction(distraction.id)}
+                        className="text-gray-400 hover:text-red-400 p-1 transition-colors"
+                      >
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
@@ -614,9 +818,9 @@ export default function Home() {
               )}
             </div>
 
-            <div className="bg-gradient-to-br from-gray-800 via-blue-800 to-indigo-900 border border-blue-200 rounded-xl p-6">
-              <h4 className="font-medium mb-2 text-yellow-500">💡 Pro Tips</h4>
-              <ul className="text-sm text-yellow-500 space-y-1">
+            <div className="bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 border border-blue-300 rounded-xl p-6">
+              <h4 className="font-medium mb-2 text-yellow-300">💡 Pro Tips</h4>
+              <ul className="text-sm text-yellow-200 space-y-1">
                 <li>• Capture distractions quickly during focus sessions</li>
                 <li>• Review and act on notes during breaks</li>
                 <li>• Use specific, actionable language</li>
@@ -631,10 +835,10 @@ export default function Home() {
           <div className="space-y-6">
             <div className="bg-gradient-to-br from-gray-800 via-blue-800 to-indigo-900 rounded-xl shadow-lg p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold">Session Durations</h3>
+                <h3 className="text-lg font-semibold text-white">Session Durations</h3>
                 <button 
                   onClick={resetToDefaults}
-                  className="flex items-center gap-2 px-4 py-2 border bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500 border-gray-300 text-white hover:bg-gray-50 rounded-lg text-sm transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500 text-white rounded-lg text-sm transition-colors"
                 >
                   <RotateCcw className="w-4 h-4" />
                   Reset to Defaults
@@ -644,8 +848,8 @@ export default function Home() {
               <div className="space-y-8">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <label className="text-base font-medium">Work Duration</label>
-                    <div className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
+                    <label className="text-base font-medium text-white">Work Duration</label>
+                    <div className="px-3 py-1 bg-gray-700 text-gray-200 rounded-full text-sm">
                       {settings.workDuration} minutes
                     </div>
                   </div>
@@ -656,7 +860,7 @@ export default function Home() {
                     step="5"
                     value={settings.workDuration}
                     onChange={(e) => updateSetting('workDuration', parseInt(e.target.value))}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                    className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer slider"
                   />
                   <p className="text-sm text-gray-300">
                     The focused work period. Recommended: 25 minutes
@@ -665,8 +869,8 @@ export default function Home() {
 
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <label className="text-base font-medium">Short Break</label>
-                    <div className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
+                    <label className="text-base font-medium text-white">Short Break</label>
+                    <div className="px-3 py-1 bg-gray-700 text-gray-200 rounded-full text-sm">
                       {settings.shortBreakDuration} minutes
                     </div>
                   </div>
@@ -677,7 +881,7 @@ export default function Home() {
                     step="1"
                     value={settings.shortBreakDuration}
                     onChange={(e) => updateSetting('shortBreakDuration', parseInt(e.target.value))}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                    className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer slider"
                   />
                   <p className="text-sm text-gray-300">
                     Quick break after each work session. Recommended: 5 minutes
@@ -686,8 +890,8 @@ export default function Home() {
 
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <label className="text-base font-medium">Long Break</label>
-                    <div className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
+                    <label className="text-base font-medium text-white">Long Break</label>
+                    <div className="px-3 py-1 bg-gray-700 text-gray-200 rounded-full text-sm">
                       {settings.longBreakDuration} minutes
                     </div>
                   </div>
@@ -698,7 +902,7 @@ export default function Home() {
                     step="5"
                     value={settings.longBreakDuration}
                     onChange={(e) => updateSetting('longBreakDuration', parseInt(e.target.value))}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                    className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer slider"
                   />
                   <p className="text-sm text-gray-300">
                     Extended break after 4 work sessions. Recommended: 15 minutes
@@ -708,12 +912,12 @@ export default function Home() {
             </div>
 
             <div className="bg-gradient-to-br from-gray-800 via-blue-800 to-indigo-900 rounded-xl shadow-lg p-6">
-              <h3 className="text-lg font-semibold mb-6">Behavior</h3>
+              <h3 className="text-lg font-semibold mb-6 text-white">Behavior</h3>
               
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
-                    <label className="text-base font-medium">Auto-start Sessions</label>
+                    <label className="text-base font-medium text-white">Auto-start Sessions</label>
                     <p className="text-sm text-gray-300">
                       Automatically start the next session after a break
                     </p>
@@ -731,7 +935,7 @@ export default function Home() {
 
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
-                    <label className="text-base font-medium flex items-center gap-2">
+                    <label className="text-base font-medium flex items-center gap-2 text-white">
                       {settings.soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
                       Sound Notifications
                     </label>
@@ -752,9 +956,9 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-gray-800 via-blue-800 to-indigo-900 border border-red-200 rounded-xl p-6">
-              <h4 className="font-medium mb-3 text-yellow-500">🍅 About the Pomodoro Technique</h4>
-              <div className="text-sm text-yellow-500 space-y-2">
+            <div className="bg-gradient-to-br from-yellow-900 via-orange-900 to-red-900 border border-yellow-300 rounded-xl p-6">
+              <h4 className="font-medium mb-3 text-yellow-300">🍅 About the Pomodoro Technique</h4>
+              <div className="text-sm text-yellow-200 space-y-2">
                 <p>The Pomodoro Technique is a time management method that uses a timer to break work into intervals:</p>
                 <ul className="list-disc list-inside space-y-1 ml-4">
                   <li>Work for 25 minutes (1 Pomodoro)</li>
@@ -769,4 +973,6 @@ export default function Home() {
       </div>
     </div>
   );
-}
+};
+
+export default Index;
