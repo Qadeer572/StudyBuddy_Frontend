@@ -489,10 +489,7 @@ const Index = () => {
     ? (sessions.reduce((sum, session) => sum + (session.completed / session.target), 0) / sessions.length) * 100
     : 0;
 
-  const formatDate = (dateString: Date) => {
-    const date = new Date(dateString);
-    return date 
-  };
+  // Removed unused formatDate function
 
   const formatTimeDisplay = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
@@ -500,23 +497,8 @@ const Index = () => {
     return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
   };
 
-  const formatTimestamp = (date: Date) => {
-    return date 
-  };
+  // Removed unused formatTimestamp function
 
-  const formatDateStamp = (date: Date) => {
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    
-    if (date  === today ) {
-      return 'Today';
-    } else if (date  === yesterday ) {
-      return 'Yesterday';
-    } else {
-      return date 
-    }
-  };
 
   return (
     // ... keep existing code (entire JSX return structure)
