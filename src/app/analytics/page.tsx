@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState} from 'react';
 import { 
   BarChart, 
   PieChart, 
@@ -10,11 +10,11 @@ import {
   Brain, 
   Target,
   Download,
-  Calendar,
-  Filter,
+  //Calendar,
+ // Filter,
   Award,
   Activity,
-  Users,
+  //Users,
   Zap
 } from 'lucide-react';
 
@@ -76,11 +76,11 @@ const weeklyStats = {
 
 export default function AnalyticsDashboard() {
   const [timeFilter, setTimeFilter] = useState('weekly');
-  const [selectedSubject, setSelectedSubject] = useState('all');
+  //const [selectedSubject, setSelectedSubject] = useState('all');
 
   // Calculate max values for chart scaling
   const maxDailyTime = Math.max(...studyTimeData.daily.map(d => d.time));
-  const maxWeeklyTime = Math.max(...studyTimeData.weekly.map(d => d.time));
+  //const maxWeeklyTime = Math.max(...studyTimeData.weekly.map(d => d.time));
 
   const exportData = (format: string) => {
     const data = {
