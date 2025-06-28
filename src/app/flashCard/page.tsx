@@ -739,11 +739,21 @@ const QuizMode = ({ deck, onBack }: { deck: deck; onBack: () => void }) => {
   const { toast } = useToast();
 
   useEffect(() => {
+    // Reset states to avoid stale data
+    setCurrentQuestionIndex(0);
+    setSelectedAnswer(null);
+    setShowResult(false);
+    setScore(0);
+    setTimeLeft(300);
+    setQuizCompleted(false);
+    setQuestions([]);
+    setCurrentQuiz(null);
+
     const fetchQuizData = async () => {
       setIsLoading(true);
       try {
         console.log("Fetching quiz data for deck:", deck.id);
-        
+    
         // Fetch all quizzes
         const resQuizes = await fetch('https://studybuddys-454c3f01f785.herokuapp.com/flashcard/getQuizes/', {
           method: 'GET',
@@ -755,7 +765,7 @@ const QuizMode = ({ deck, onBack }: { deck: deck; onBack: () => void }) => {
         });
         const quizData = await resQuizes.json();
         console.log("Quiz data response:", quizData);
-        
+    
         // Fetch all questions
         const resQuestions = await fetch('https://studybuddys-454c3f01f785.herokuapp.com/flashcard/getQuizQuestion/', {
           method: 'GET',
@@ -766,42 +776,59 @@ const QuizMode = ({ deck, onBack }: { deck: deck; onBack: () => void }) => {
           credentials: 'include',
         });
         const questionData = await resQuestions.json();
-
         console.log("Question data response:", questionData);
-
+    
         if (quizData.status && questionData.status) {
-          // Find the specific quiz for this deck (assuming each deck has only one quiz)
+          // Find the specific quiz for this deck
           const deckQuiz = quizData.quizzes.find((quiz: Quiz) => quiz.deck_id === deck.id);
           console.log("Found deck quiz:", deckQuiz);
-          
+    
           if (deckQuiz) {
             setCurrentQuiz(deckQuiz);
+    
+            // The questionData.questions is a nested array structure
+            // We need to flatten it and then filter for the specific quiz
+            const allQuestions = questionData.questions.flat(); // Flatten the nested arrays
+            console.log("All flattened questions:", allQuestions);
             
             // Filter questions for this specific quiz
-            const deckQuestions = questionData.questions 
-            console.log("Filtered questions for quiz:", deckQuestions);
-            
-            setQuestions(deckQuestions[0]);
+            const filterQuestions = allQuestions.filter((question: Question) => question.quiz_id === deckQuiz.id);
+            console.log("Filtered questions for quiz id:", deckQuiz.id, filterQuestions);
+    
+            if (filterQuestions.length === 0) {
+              toast({
+                title: "No Questions Available",
+                description: "No questions found for this quiz."
+              });
+              setQuestions([]);
+            } else {
+              setQuestions(filterQuestions);
+            }
           } else {
             console.log("No quiz found for deck:", deck.id);
+            toast({
+              title: "No Quiz Available",
+              description: "No quiz found for the selected deck."
+            });
             setQuestions([]);
             setCurrentQuiz(null);
           }
+        } else {
+          throw new Error("Invalid API response status");
         }
       } catch (error) {
         toast({
           title: "Error",
-          description: "Failed to load quiz data",
+          description: "Failed to load quiz data"
         });
         console.error("Error fetching quiz data:", error);
       } finally {
         setIsLoading(false);
       }
     };
-    
+
     fetchQuizData();
   }, [deck.id]);
-
   const currentQuestion = questions[currentQuestionIndex];
   
   console.log("Initialize Current Question with index :",currentQuestionIndex,currentQuestion)
