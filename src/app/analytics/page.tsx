@@ -10,12 +10,12 @@ import {
   Brain, 
   Target,
   Download,
-  //Calendar,
- // Filter,
   Award,
   Activity,
-  //Users,
-  Zap
+  Zap,
+  Calendar,
+  Trophy,
+  Flame
 } from 'lucide-react';
 
 // Dummy data
@@ -36,16 +36,16 @@ const studyTimeData = {
     { week: 'Week 4', time: 25.1 }
   ],
   bySubject: [
-    { subject: 'Mathematics', time: 45.2, color: '#3B82F6' },
-    { subject: 'Physics', time: 38.7, color: '#10B981' },
+    { subject: 'Mathematics', time: 45.2, color: '#8B5CF6' },
+    { subject: 'Physics', time: 38.7, color: '#06B6D4' },
     { subject: 'Chemistry', time: 29.3, color: '#F59E0B' },
     { subject: 'Biology', time: 33.8, color: '#EF4444' }
   ]
 };
 
 const progressData = [
-  { subject: 'Mathematics', completed: 85, total: 120, color: '#3B82F6' },
-  { subject: 'Physics', completed: 72, total: 95, color: '#10B981' },
+  { subject: 'Mathematics', completed: 85, total: 120, color: '#8B5CF6' },
+  { subject: 'Physics', completed: 72, total: 95, color: '#06B6D4' },
   { subject: 'Chemistry', completed: 58, total: 88, color: '#F59E0B' },
   { subject: 'Biology', completed: 91, total: 105, color: '#EF4444' }
 ];
@@ -76,11 +76,9 @@ const weeklyStats = {
 
 export default function AnalyticsDashboard() {
   const [timeFilter, setTimeFilter] = useState('weekly');
-  //const [selectedSubject, setSelectedSubject] = useState('all');
 
   // Calculate max values for chart scaling
   const maxDailyTime = Math.max(...studyTimeData.daily.map(d => d.time));
-  //const maxWeeklyTime = Math.max(...studyTimeData.weekly.map(d => d.time));
 
   const exportData = (format: string) => {
     const data = {
@@ -98,7 +96,6 @@ export default function AnalyticsDashboard() {
       a.download = 'study-analytics.json';
       a.click();
     } else if (format === 'csv') {
-      // Simple CSV export for study time data
       const csvContent = [
         'Day,Study Time (hours),Subject',
         ...studyTimeData.daily.map(d => `${d.day},${d.time},${d.subject}`)
@@ -114,44 +111,59 @@ export default function AnalyticsDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 w-48 h-48 bg-pink-500/10 rounded-full blur-2xl animate-bounce"></div>
+      </div>
+
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="relative z-10 bg-white/5 backdrop-blur-xl border-b border-white/10 shadow-2xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg">
-                  <Activity className="h-8 w-8 text-white" />
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <div className="p-4 bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-500 rounded-2xl shadow-2xl">
+                  <Activity className="h-10 w-10 text-white" />
                 </div>
-                Study Analytics
-              </h1>
-              <p className="mt-2 text-slate-600">Track your learning progress and optimize your study habits</p>
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full animate-pulse"></div>
+              </div>
+              <div>
+                <h1 className="text-4xl font-extrabold bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent">
+                  Study Analytics
+                </h1>
+                <p className="mt-2 text-gray-300 text-lg">Transform your learning journey with powerful insights</p>
+              </div>
             </div>
-            <div className="mt-4 sm:mt-0 flex items-center gap-3">
-              <select 
-                value={timeFilter}
-                onChange={(e) => setTimeFilter(e.target.value)}
-                className="px-4 py-2 border border-slate-300 rounded-lg bg-white text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="daily">Daily View</option>
-                <option value="weekly">Weekly View</option>
-                <option value="monthly">Monthly View</option>
-              </select>
-              <div className="flex items-center gap-2">
+            <div className="mt-6 sm:mt-0 flex items-center gap-4">
+              <div className="relative">
+                <select 
+                  value={timeFilter}
+                  onChange={(e) => setTimeFilter(e.target.value)}
+                  className="px-6 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none pr-10"
+                >
+                  <option value="daily" className="text-gray-900">Daily View</option>
+                  <option value="weekly" className="text-gray-900">Weekly View</option>
+                  <option value="monthly" className="text-gray-900">Monthly View</option>
+                </select>
+                <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-300 pointer-events-none" />
+              </div>
+              <div className="flex items-center gap-3">
                 <button 
                   onClick={() => exportData('json')}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="group flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 shadow-lg hover:shadow-blue-500/25 hover:-translate-y-1"
                 >
-                  <Download className="h-4 w-4" />
-                  Export JSON
+                  <Download className="h-4 w-4 group-hover:animate-bounce" />
+                  JSON
                 </button>
                 <button 
                   onClick={() => exportData('csv')}
-                  className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  className="group flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl hover:from-emerald-600 hover:to-teal-600 transition-all duration-300 shadow-lg hover:shadow-emerald-500/25 hover:-translate-y-1"
                 >
-                  <Download className="h-4 w-4" />
-                  Export CSV
+                  <Download className="h-4 w-4 group-hover:animate-bounce" />
+                  CSV
                 </button>
               </div>
             </div>
@@ -159,57 +171,73 @@ export default function AnalyticsDashboard() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
+          <div className="group relative bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-2xl hover:shadow-purple-500/20 hover:-translate-y-2 transition-all duration-500">
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="relative flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600">Total Study Time</p>
-                <p className="text-2xl font-bold text-slate-900">{weeklyStats.totalStudyTime}h</p>
-                <p className="text-xs text-green-600 mt-1">+12% from last week</p>
+                <p className="text-sm font-medium text-gray-300">Total Study Time</p>
+                <p className="text-3xl font-bold text-white mt-1">{weeklyStats.totalStudyTime}h</p>
+                <div className="flex items-center mt-2">
+                  <TrendingUp className="h-4 w-4 text-green-400 mr-1" />
+                  <p className="text-sm text-green-400 font-medium">+12% from last week</p>
+                </div>
               </div>
-              <div className="p-3 bg-blue-100 rounded-lg">
-                <Clock className="h-6 w-6 text-blue-600" />
+              <div className="p-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl shadow-lg">
+                <Clock className="h-8 w-8 text-white" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
+          <div className="group relative bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-2xl hover:shadow-blue-500/20 hover:-translate-y-2 transition-all duration-500">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="relative flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600">Sessions Completed</p>
-                <p className="text-2xl font-bold text-slate-900">{weeklyStats.sessionsCompleted}</p>
-                <p className="text-xs text-green-600 mt-1">+5 from last week</p>
+                <p className="text-sm font-medium text-gray-300">Sessions Completed</p>
+                <p className="text-3xl font-bold text-white mt-1">{weeklyStats.sessionsCompleted}</p>
+                <div className="flex items-center mt-2">
+                  <Target className="h-4 w-4 text-blue-400 mr-1" />
+                  <p className="text-sm text-blue-400 font-medium">+5 from last week</p>
+                </div>
               </div>
-              <div className="p-3 bg-green-100 rounded-lg">
-                <Target className="h-6 w-6 text-green-600" />
+              <div className="p-4 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl shadow-lg">
+                <Target className="h-8 w-8 text-white" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
+          <div className="group relative bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-2xl hover:shadow-yellow-500/20 hover:-translate-y-2 transition-all duration-500">
+            <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="relative flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600">Average Accuracy</p>
-                <p className="text-2xl font-bold text-slate-900">{weeklyStats.averageAccuracy}%</p>
-                <p className="text-xs text-green-600 mt-1">+3% improvement</p>
+                <p className="text-sm font-medium text-gray-300">Average Accuracy</p>
+                <p className="text-3xl font-bold text-white mt-1">{weeklyStats.averageAccuracy}%</p>
+                <div className="flex items-center mt-2">
+                  <Trophy className="h-4 w-4 text-yellow-400 mr-1" />
+                  <p className="text-sm text-yellow-400 font-medium">+3% improvement</p>
+                </div>
               </div>
-              <div className="p-3 bg-yellow-100 rounded-lg">
-                <Award className="h-6 w-6 text-yellow-600" />
+              <div className="p-4 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl shadow-lg">
+                <Award className="h-8 w-8 text-white" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
+          <div className="group relative bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-2xl hover:shadow-red-500/20 hover:-translate-y-2 transition-all duration-500">
+            <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 to-pink-500/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="relative flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600">Study Streak</p>
-                <p className="text-2xl font-bold text-slate-900">{weeklyStats.streakDays}</p>
-                <p className="text-xs text-green-600 mt-1">days in a row</p>
+                <p className="text-sm font-medium text-gray-300">Study Streak</p>
+                <p className="text-3xl font-bold text-white mt-1">{weeklyStats.streakDays}</p>
+                <div className="flex items-center mt-2">
+                  <Flame className="h-4 w-4 text-red-400 mr-1" />
+                  <p className="text-sm text-red-400 font-medium">days in a row</p>
+                </div>
               </div>
-              <div className="p-3 bg-red-100 rounded-lg">
-                <Zap className="h-6 w-6 text-red-600" />
+              <div className="p-4 bg-gradient-to-r from-red-500 to-pink-500 rounded-xl shadow-lg">
+                <Zap className="h-8 w-8 text-white" />
               </div>
             </div>
           </div>
@@ -218,57 +246,67 @@ export default function AnalyticsDashboard() {
         {/* Charts Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Study Time Chart */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
-                <BarChart className="h-5 w-5 text-blue-600" />
+          <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 border border-white/20 shadow-2xl">
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-2xl font-bold text-white flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg">
+                  <BarChart className="h-6 w-6 text-white" />
+                </div>
                 Daily Study Time
               </h3>
-              <div className="text-sm text-slate-500">Last 7 days</div>
+              <div className="text-sm text-gray-300 bg-white/10 px-3 py-1 rounded-full">Last 7 days</div>
             </div>
-            <div className="space-y-4">
-              {studyTimeData.daily.map((day) => (
-                <div key={day.day} className="flex items-center gap-4">
-                  <div className="w-12 text-sm font-medium text-slate-600">{day.day}</div>
+            <div className="space-y-5">
+              {studyTimeData.daily.map((day, index) => (
+                <div key={day.day} className="flex items-center gap-6 group">
+                  <div className="w-14 text-sm font-semibold text-gray-300">{day.day}</div>
                   <div className="flex-1 relative">
-                    <div className="h-8 bg-slate-100 rounded-lg overflow-hidden">
+                    <div className="h-10 bg-white/5 rounded-xl overflow-hidden border border-white/10">
                       <div 
-                        className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg transition-all duration-700 flex items-center justify-end pr-2"
-                        style={{ width: `${(day.time / maxDailyTime) * 100}%` }}
+                        className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-xl transition-all duration-1000 flex items-center justify-end pr-4 shadow-lg"
+                        style={{ 
+                          width: `${(day.time / maxDailyTime) * 100}%`,
+                          animationDelay: `${index * 200}ms`
+                        }}
                       >
-                        <span className="text-xs text-white font-medium">{day.time}h</span>
+                        <span className="text-sm text-white font-bold">{day.time}h</span>
                       </div>
                     </div>
                   </div>
-                  <div className="text-xs text-slate-500 w-16">{day.subject}</div>
+                  <div className="text-sm text-gray-400 w-20 text-right">{day.subject}</div>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Progress Chart */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
-                <PieChart className="h-5 w-5 text-green-600" />
+          <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 border border-white/20 shadow-2xl">
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-2xl font-bold text-white flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg">
+                  <PieChart className="h-6 w-6 text-white" />
+                </div>
                 Subject Progress
               </h3>
             </div>
-            <div className="space-y-4">
-              {progressData.map((subject) => {
+            <div className="space-y-6">
+              {progressData.map((subject, index) => {
                 const percentage = Math.round((subject.completed / subject.total) * 100);
                 return (
-                  <div key={subject.subject} className="space-y-2">
+                  <div key={subject.subject} className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-slate-700">{subject.subject}</span>
-                      <span className="text-sm text-slate-500">{subject.completed}/{subject.total} ({percentage}%)</span>
+                      <span className="text-lg font-semibold text-white">{subject.subject}</span>
+                      <span className="text-sm text-gray-300 bg-white/10 px-3 py-1 rounded-full">
+                        {subject.completed}/{subject.total} ({percentage}%)
+                      </span>
                     </div>
-                    <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="relative h-4 bg-white/10 rounded-full overflow-hidden border border-white/20">
                       <div 
-                        className="h-full rounded-full transition-all duration-700"
+                        className="h-full rounded-full transition-all duration-1000 shadow-lg"
                         style={{ 
                           width: `${percentage}%`,
-                          backgroundColor: subject.color 
+                          background: `linear-gradient(90deg, ${subject.color}, ${subject.color}AA)`,
+                          animationDelay: `${index * 300}ms`
                         }}
                       />
                     </div>
@@ -282,65 +320,69 @@ export default function AnalyticsDashboard() {
         {/* Bottom Row Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Flashcard Stats */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
-                <Brain className="h-5 w-5 text-purple-600" />
+          <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 border border-white/20 shadow-2xl">
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-2xl font-bold text-white flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg">
+                  <Brain className="h-6 w-6 text-white" />
+                </div>
                 Flashcard Stats
               </h3>
             </div>
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span className="text-sm font-medium text-slate-700">Mastered</span>
+              <div className="group flex items-center justify-between p-4 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-xl border border-green-500/30 hover:border-green-400/50 transition-all duration-300">
+                <div className="flex items-center gap-4">
+                  <div className="w-4 h-4 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full shadow-lg"></div>
+                  <span className="text-lg font-semibold text-white">Mastered</span>
                 </div>
-                <span className="text-lg font-bold text-green-600">{flashcardData.mastered}</span>
+                <span className="text-2xl font-bold text-green-400">{flashcardData.mastered}</span>
               </div>
-              <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                  <span className="text-sm font-medium text-slate-700">Learned</span>
+              <div className="group flex items-center justify-between p-4 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-xl border border-blue-500/30 hover:border-blue-400/50 transition-all duration-300">
+                <div className="flex items-center gap-4">
+                  <div className="w-4 h-4 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full shadow-lg"></div>
+                  <span className="text-lg font-semibold text-white">Learned</span>
                 </div>
-                <span className="text-lg font-bold text-blue-600">{flashcardData.learned}</span>
+                <span className="text-2xl font-bold text-blue-400">{flashcardData.learned}</span>
               </div>
-              <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                  <span className="text-sm font-medium text-slate-700">Reviewing</span>
+              <div className="group flex items-center justify-between p-4 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-xl border border-yellow-500/30 hover:border-yellow-400/50 transition-all duration-300">
+                <div className="flex items-center gap-4">
+                  <div className="w-4 h-4 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full shadow-lg"></div>
+                  <span className="text-lg font-semibold text-white">Reviewing</span>
                 </div>
-                <span className="text-lg font-bold text-yellow-600">{flashcardData.reviewing}</span>
+                <span className="text-2xl font-bold text-yellow-400">{flashcardData.reviewing}</span>
               </div>
-              <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                  <span className="text-sm font-medium text-slate-700">Pending</span>
+              <div className="group flex items-center justify-between p-4 bg-gradient-to-r from-red-500/20 to-pink-500/20 rounded-xl border border-red-500/30 hover:border-red-400/50 transition-all duration-300">
+                <div className="flex items-center gap-4">
+                  <div className="w-4 h-4 bg-gradient-to-r from-red-400 to-pink-400 rounded-full shadow-lg"></div>
+                  <span className="text-lg font-semibold text-white">Pending</span>
                 </div>
-                <span className="text-lg font-bold text-red-600">{flashcardData.pending}</span>
+                <span className="text-2xl font-bold text-red-400">{flashcardData.pending}</span>
               </div>
             </div>
           </div>
 
           {/* Quiz Performance Trend */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 lg:col-span-2">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-indigo-600" />
+          <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 border border-white/20 shadow-2xl lg:col-span-2">
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-2xl font-bold text-white flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg">
+                  <TrendingUp className="h-6 w-6 text-white" />
+                </div>
                 Quiz Performance Trend
               </h3>
-              <div className="text-sm text-slate-500">Last 7 days</div>
+              <div className="text-sm text-gray-300 bg-white/10 px-3 py-1 rounded-full">Last 7 days</div>
             </div>
-            <div className="relative h-48">
-              <svg className="w-full h-full" viewBox="0 0 400 150">
+            <div className="relative h-64 bg-white/5 rounded-xl p-4 border border-white/10">
+              <svg className="w-full h-full" viewBox="0 0 400 180">
                 {/* Grid lines */}
                 {[0, 25, 50, 75, 100].map((y) => (
                   <line
                     key={y}
                     x1="40"
                     x2="380"
-                    y1={120 - (y * 0.8)}
-                    y2={120 - (y * 0.8)}
-                    stroke="#f1f5f9"
+                    y1={140 - (y * 1.0)}
+                    y2={140 - (y * 1.0)}
+                    stroke="rgba(255,255,255,0.1)"
                     strokeWidth="1"
                   />
                 ))}
@@ -349,91 +391,124 @@ export default function AnalyticsDashboard() {
                   <text
                     key={y}
                     x="35"
-                    y={125 - (y * 0.8)}
+                    y={145 - (y * 1.0)}
                     textAnchor="end"
-                    className="text-xs fill-slate-400"
+                    className="text-xs fill-gray-400"
                   >
                     {y}%
                   </text>
                 ))}
+                {/* Performance line with gradient */}
+                <defs>
+                  <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#8B5CF6" />
+                    <stop offset="50%" stopColor="#06B6D4" />
+                    <stop offset="100%" stopColor="#10B981" />
+                  </linearGradient>
+                  <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="rgba(139, 92, 246, 0.3)" />
+                    <stop offset="100%" stopColor="rgba(139, 92, 246, 0)" />
+                  </linearGradient>
+                </defs>
+                {/* Area under the curve */}
+                <path
+                  d={`M 60 140 ${quizPerformance.map((point, index) => 
+                    `L ${60 + (index * 45)} ${140 - (point.accuracy * 1.0)}`
+                  ).join(' ')} L 375 140 Z`}
+                  fill="url(#areaGradient)"
+                />
                 {/* Performance line */}
                 <polyline
                   points={quizPerformance.map((point, index) => 
-                    `${60 + (index * 45)},${120 - (point.accuracy * 0.8)}`
+                    `${60 + (index * 45)},${140 - (point.accuracy * 1.0)}`
                   ).join(' ')}
                   fill="none"
-                  stroke="url(#gradient)"
-                  strokeWidth="3"
-                  className="drop-shadow-sm"
+                  stroke="url(#lineGradient)"
+                  strokeWidth="4"
+                  className="drop-shadow-lg"
                 />
-                {/* Data points */}
+                {/* Data points with glow effect */}
                 {quizPerformance.map((point, index) => (
-                  <circle
-                    key={index}
-                    cx={60 + (index * 45)}
-                    cy={120 - (point.accuracy * 0.8)}
-                    r="4"
-                    fill="#4f46e5"
-                    className="drop-shadow-sm"
-                  />
+                  <g key={index}>
+                    <circle
+                      cx={60 + (index * 45)}
+                      cy={140 - (point.accuracy * 1.0)}
+                      r="8"
+                      fill="rgba(139, 92, 246, 0.3)"
+                      className="animate-pulse"
+                    />
+                    <circle
+                      cx={60 + (index * 45)}
+                      cy={140 - (point.accuracy * 1.0)}
+                      r="4"
+                      fill="#8B5CF6"
+                      className="drop-shadow-lg"
+                    />
+                  </g>
                 ))}
-                {/* Gradient definition */}
-                <defs>
-                  <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#4f46e5" />
-                    <stop offset="100%" stopColor="#06b6d4" />
-                  </linearGradient>
-                </defs>
               </svg>
             </div>
-            <div className="flex justify-between mt-4 text-xs text-slate-500">
+            <div className="flex justify-between mt-6 text-sm text-gray-400">
               {quizPerformance.map((point, index) => (
-                <span key={index}>Day {index + 1}</span>
+                <span key={index} className="font-medium">Day {index + 1}</span>
               ))}
             </div>
           </div>
         </div>
 
         {/* Subject Breakdown */}
-        <div className="mt-8 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
-              <BookOpen className="h-5 w-5 text-emerald-600" />
+        <div className="mt-8 bg-white/10 backdrop-blur-xl rounded-2xl p-8 border border-white/20 shadow-2xl">
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="text-2xl font-bold text-white flex items-center gap-3">
+              <div className="p-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg">
+                <BookOpen className="h-6 w-6 text-white" />
+              </div>
               Study Time by Subject
             </h3>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {studyTimeData.bySubject.map((subject) => (
-              <div key={subject.subject} className="text-center p-6 rounded-lg border border-slate-200 hover:shadow-md transition-shadow">
-                <div className="relative w-24 h-24 mx-auto mb-4">
-                  <svg className="w-full h-full transform -rotate-90" viewBox="0 0 80 80">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {studyTimeData.bySubject.map((subject, index) => (
+              <div key={subject.subject} className="group text-center p-8 rounded-2xl bg-white/5 border border-white/20 hover:bg-white/10 hover:border-white/30 hover:-translate-y-2 transition-all duration-500 shadow-xl">
+                <div className="relative w-32 h-32 mx-auto mb-6">
+                  <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
                     <circle
-                      cx="40"
-                      cy="40"
-                      r="32"
+                      cx="50"
+                      cy="50"
+                      r="40"
                       fill="none"
-                      stroke="#f1f5f9"
+                      stroke="rgba(255,255,255,0.1)"
                       strokeWidth="8"
                     />
                     <circle
-                      cx="40"
-                      cy="40"
-                      r="32"
+                      cx="50"
+                      cy="50"
+                      r="40"
                       fill="none"
                       stroke={subject.color}
                       strokeWidth="8"
-                      strokeDasharray={`${(subject.time / 50) * 201} 201`}
-                      className="transition-all duration-700"
+                      strokeDasharray={`${(subject.time / 50) * 251} 251`}
+                      className="transition-all duration-1000 drop-shadow-lg"
+                      style={{ animationDelay: `${index * 300}ms` }}
                     />
                   </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-lg font-bold" style={{ color: subject.color }}>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-2xl font-bold text-white">
                       {subject.time}h
                     </span>
+                    <span className="text-xs text-gray-400 mt-1">This week</span>
                   </div>
                 </div>
-                <h4 className="font-semibold text-slate-900 mb-1">{subject.subject}</h4>
-                <p className="text-sm text-slate-500">This week</p>
+                <h4 className="font-bold text-xl text-white mb-2">{subject.subject}</h4>
+                <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full rounded-full transition-all duration-1000"
+                    style={{ 
+                      width: `${(subject.time / 50) * 100}%`,
+                      backgroundColor: subject.color,
+                      animationDelay: `${index * 400}ms`
+                    }}
+                  />
+                </div>
               </div>
             ))}
           </div>
