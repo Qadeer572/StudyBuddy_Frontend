@@ -223,7 +223,7 @@ const Index = () => {
     };
     setDistractions([newDistractionItem, ...distractions]);
 
-    const res=await fetch('http://127.0.0.1:8000/promodroTimer/addNotes/',{
+    const res=await fetch('https://studybuddys-454c3f01f785.herokuapp.com/promodroTimer/addNotes/',{
       method: 'POST',
       body: JSON.stringify({
         "notesContent":text
@@ -247,7 +247,7 @@ const Index = () => {
 
   const removeDistraction = async (id: number) => {
     setDistractions(prev => prev.filter(d => d.id !== id));
-    const res= await fetch('http://127.0.0.1:8000/promodroTimer/deleteNotes/',{
+    const res= await fetch('https://studybuddys-454c3f01f785.herokuapp.com/promodroTimer/deleteNotes/',{
       method: 'POST',
       body: JSON.stringify({ id }),
       headers: {
@@ -269,7 +269,7 @@ const Index = () => {
   // Backend API functions
   const getSetting = async () => {
     try {
-      const res = await fetch('http://127.0.0.1:8000/promodroTimer/getSetting/', {
+      const res = await fetch('https://studybuddys-454c3f01f785.herokuapp.com/promodroTimer/getSetting/', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -309,7 +309,7 @@ const Index = () => {
   };
   
   const getNotes=async ()=>{
-    const res= await fetch('http://127.0.0.1:8000/promodroTimer/getNotes/',{
+    const res= await fetch('https://studybuddys-454c3f01f785.herokuapp.com/promodroTimer/getNotes/',{
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -354,7 +354,7 @@ const Index = () => {
 
     try {
       console.log('Sending update to backend:', updatedSettings);
-      const res = await fetch('http://127.0.0.1:8000/promodroTimer/updatSetting/', {
+      const res = await fetch('https://studybuddys-454c3f01f785.herokuapp.com/promodroTimer/updatSetting/', {
         method: 'POST',
         body: JSON.stringify(updatedSettings),
         headers: {
@@ -400,7 +400,7 @@ const Index = () => {
     setTimeLeft(25 * 60);
 
     try {
-      const res = await fetch('http://127.0.0.1:8000/setDefaultTimer/', {
+      const res = await fetch('https://studybuddys-454c3f01f785.herokuapp.com/setDefaultTimer/', {
         method: 'POST',
         body: JSON.stringify({
           workDuration: 25,
